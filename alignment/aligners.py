@@ -45,17 +45,15 @@ class Bowtie2(object):
         """Now: Returns the version of this aligner
         Future: Pipeline can check the version of aligner, if changed then rerun the whole analysis.
         """
-        cmd = [os.path.join(tools_folder, self.name)]
-        cmd.append('--version')
-        stdout = subprocess.PIPE
-        stderr = subprocess.PIPE
-        #cmd = ' '.join(cmd)
-        print(cmd)
-        p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+        cmd = [os.path.join(tools_folder, self.name, self.name), '--version']
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
-        print(p.returncode)
-        print(stdout)
-        print(stderr)
+        #print(p.returncode)
+        version = str(stdout).split('\\n')[0]
+        print("===========================================")
+        print('Bowtie2', ' '.join(version.split(' ')[1:]))
+        #print(stderr)
+        return version.split(' ')[2]
 
 
 def tophat2_aligner(lane, genome):

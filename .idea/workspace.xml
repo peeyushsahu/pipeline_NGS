@@ -2,13 +2,48 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="23f1d64f-be3a-4a4f-8e68-439239685b8c" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/genome/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/genome/ensembl.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/alignment/ensembl.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/alignment/aligner.py" afterPath="$PROJECT_DIR$/alignment/aligners.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/lanes.py" afterPath="$PROJECT_DIR$/alignment/lanes.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/pipeline_NGS.iml" afterPath="$PROJECT_DIR$/.idea/pipeline_NGS.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="$PROJECT_DIR$/.idea/.name" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/annotate/Annotate.py" afterPath="$PROJECT_DIR$/annotate/Annotate.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/DESeq2.R" afterPath="$PROJECT_DIR$/rScripts/DESeq2.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/__init__.py" afterPath="$PROJECT_DIR$/alignment/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/annotate/__init__.py" afterPath="$PROJECT_DIR$/annotate/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/__init__.py" afterPath="$PROJECT_DIR$/overlap_analysis/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/peakcaller/__init__.py" afterPath="$PROJECT_DIR$/peakcaller/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plotsAndseq/__init__.py" afterPath="$PROJECT_DIR$/plotsAndseq/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/__init__.py" afterPath="$PROJECT_DIR$/rScripts/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rna_seq/__init__.py" afterPath="$PROJECT_DIR$/rna_seq/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stat_tests/__init__.py" afterPath="$PROJECT_DIR$/stat_tests/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/__init__.py" afterPath="$PROJECT_DIR$/test/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/aligners.py" afterPath="$PROJECT_DIR$/alignment/aligners.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rna_seq/bam_processing.py" afterPath="$PROJECT_DIR$/rna_seq/bam_processing.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/cal_genomic_region.py" afterPath="$PROJECT_DIR$/overlap_analysis/cal_genomic_region.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/commons.py" afterPath="$PROJECT_DIR$/alignment/commons.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/convert_mouse2human_genenames.R" afterPath="$PROJECT_DIR$/rScripts/convert_mouse2human_genenames.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/cuff_diff.R" afterPath="$PROJECT_DIR$/rScripts/cuff_diff.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/differential_binding.py" afterPath="$PROJECT_DIR$/overlap_analysis/differential_binding.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/filterPeaks.py" afterPath="$PROJECT_DIR$/overlap_analysis/filterPeaks.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/heatmap3.R" afterPath="$PROJECT_DIR$/rScripts/heatmap3.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/heatmap_FoldChange.R" afterPath="$PROJECT_DIR$/rScripts/heatmap_FoldChange.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/microarray_analysis.R" afterPath="$PROJECT_DIR$/rScripts/microarray_analysis.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/microarray_data.py" afterPath="$PROJECT_DIR$/microarray_data.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/multiprocess_peak_heatmap.py" afterPath="$PROJECT_DIR$/multiprocess_peak_heatmap.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/multiprocess_peak_overlap.py" afterPath="$PROJECT_DIR$/multiprocess_peak_overlap.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/peakcaller/peakCaller.py" afterPath="$PROJECT_DIR$/peakcaller/peakCaller.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stat_tests/permutation.py" afterPath="$PROJECT_DIR$/stat_tests/permutation.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plotsAndseq/plots.py" afterPath="$PROJECT_DIR$/plotsAndseq/plots.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/prealignment.py" afterPath="$PROJECT_DIR$/alignment/prealignment.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/peakcaller/promoter_enrichment.py" afterPath="$PROJECT_DIR$/peakcaller/promoter_enrichment.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/qcMethods.py" afterPath="$PROJECT_DIR$/qcMethods.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/quality_check.py" afterPath="$PROJECT_DIR$/alignment/quality_check.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/rScript.R" afterPath="$PROJECT_DIR$/rScripts/rScript.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/retroT_analysis.py" afterPath="$PROJECT_DIR$/alignment/retroT_analysis.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/sahu.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/sahu.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plotsAndseq/seqOperations.py" afterPath="$PROJECT_DIR$/plotsAndseq/seqOperations.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rna_seq/some_methods.py" afterPath="$PROJECT_DIR$/rna_seq/some_methods.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/tssHeatmap.R" afterPath="$PROJECT_DIR$/rScripts/tssHeatmap.R" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/vally_peaks.py" afterPath="$PROJECT_DIR$/vally_peaks.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pipeline_NGS.iws" />
@@ -30,11 +65,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="run.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="run.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/bin/run.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7164179">
-              <caret line="24" column="53" selection-start-line="24" selection-start-column="53" selection-end-line="24" selection-end-column="53" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="16" column="27" selection-start-line="16" selection-start-column="27" selection-end-line="16" selection-end-column="27" />
               <folding>
                 <element signature="e#87#113#0" expanded="true" />
               </folding>
@@ -45,8 +80,8 @@
       <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.0">
-              <caret line="0" column="3" selection-start-line="0" selection-start-column="3" selection-end-line="0" selection-end-column="3" />
+            <state vertical-scroll-proportion="-0.26732674">
+              <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -59,26 +94,16 @@
               <caret line="8" column="12" selection-start-line="8" selection-start-column="12" selection-end-line="8" selection-end-column="12" />
               <folding>
                 <element signature="e#48#57#0" expanded="true" />
-                <marker date="1499076450637" expanded="true" signature="156:3758" placeholder="..." />
-                <marker date="1499076450637" expanded="true" signature="323:914" placeholder="..." />
-                <marker date="1499076450637" expanded="true" signature="2259:2526" placeholder="..." />
-                <marker date="1499076450637" expanded="true" signature="2268:2353" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1499076450637" expanded="true" signature="2555:2720" placeholder="..." />
-                <marker date="1499076450637" expanded="true" signature="2564:2638" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1499076450637" expanded="true" signature="2753:2920" placeholder="..." />
-                <marker date="1499076450637" expanded="true" signature="2973:3249" placeholder="..." />
-                <marker date="1499076450637" expanded="true" signature="2982:3058" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1499076450637" expanded="true" signature="3287:3758" placeholder="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="aligners.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="aligners.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/alignment/aligners.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="35" column="31" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
+            <state vertical-scroll-proportion="0.40298507">
+              <caret line="49" column="29" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
               <folding>
                 <element signature="e#51#74#0" expanded="true" />
               </folding>
@@ -138,8 +163,8 @@
         <option value="$PROJECT_DIR$/alignment/ensembl.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/alignment/aligner.py" />
-        <option value="$PROJECT_DIR$/bin/run.py" />
         <option value="$PROJECT_DIR$/alignment/aligners.py" />
+        <option value="$PROJECT_DIR$/bin/run.py" />
       </list>
     </option>
   </component>
@@ -450,7 +475,13 @@
       <option name="project" value="LOCAL" />
       <updated>1498832326991</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added ensembl genome wrapper and adding bowtie2 wrapper">
+      <created>1499090069500</created>
+      <option name="number" value="00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1499090069500</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -459,6 +490,7 @@
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.16139586" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -469,7 +501,6 @@
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -492,7 +523,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added gitignore" />
     <MESSAGE value="loading genome" />
-    <option name="LAST_COMMIT_MESSAGE" value="loading genome" />
+    <MESSAGE value="Added ensembl genome wrapper and adding bowtie2 wrapper" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added ensembl genome wrapper and adding bowtie2 wrapper" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -525,16 +557,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#48#57#0" expanded="true" />
-            <marker date="1499076450637" expanded="true" signature="156:3758" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="323:914" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2259:2526" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2268:2353" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="2555:2720" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2564:2638" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="2753:2920" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2973:3249" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2982:3058" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="3287:3758" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -571,16 +593,6 @@
           <caret line="36" column="63" selection-start-line="36" selection-start-column="63" selection-end-line="36" selection-end-column="63" />
           <folding>
             <element signature="e#48#57#0" expanded="true" />
-            <marker date="1499076450637" expanded="true" signature="156:3758" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="323:914" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2259:2526" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2268:2353" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="2555:2720" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2564:2638" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="2753:2920" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2973:3249" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2982:3058" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="3287:3758" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -632,11 +644,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
+    <entry file="file://$PROJECT_DIR$/alignment/commons.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="3" selection-start-line="0" selection-start-column="3" selection-end-line="0" selection-end-column="3" />
+          <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.26732674">
+          <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bin/run.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="16" column="27" selection-start-line="16" selection-start-column="27" selection-end-line="16" selection-end-column="27" />
+          <folding>
+            <element signature="e#87#113#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -646,44 +676,16 @@
           <caret line="8" column="12" selection-start-line="8" selection-start-column="12" selection-end-line="8" selection-end-column="12" />
           <folding>
             <element signature="e#48#57#0" expanded="true" />
-            <marker date="1499076450637" expanded="true" signature="156:3758" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="323:914" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2259:2526" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2268:2353" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="2555:2720" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2564:2638" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="2753:2920" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2973:3249" placeholder="..." />
-            <marker date="1499076450637" expanded="true" signature="2982:3058" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1499076450637" expanded="true" signature="3287:3758" placeholder="..." />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/alignment/commons.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="10" selection-start-line="3" selection-start-column="10" selection-end-line="3" selection-end-column="10" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/alignment/aligners.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="31" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
+        <state vertical-scroll-proportion="0.40298507">
+          <caret line="49" column="29" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
           <folding>
             <element signature="e#51#74#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bin/run.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7164179">
-          <caret line="24" column="53" selection-start-line="24" selection-start-column="53" selection-end-line="24" selection-end-column="53" />
-          <folding>
-            <element signature="e#87#113#0" expanded="true" />
           </folding>
         </state>
       </provider>
