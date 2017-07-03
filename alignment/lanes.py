@@ -1,4 +1,4 @@
-from alignment import aligner
+from alignment import aligners
 
 __author__ = 'peeyush'
 import subprocess as sp
@@ -55,20 +55,20 @@ class Lane():
     def do_alignment(self, genome, method):
         self.genome = genome
         if method == "Bowtie2":
-            aligner.bowtie2_aligner(self, genome)
+            aligners.bowtie2_aligner(self, genome)
             self.sam2bam()
             self.bam_sort()
         if method == "Tophat2":
-            aligner.tophat2_aligner(self, genome)
+            aligners.tophat2_aligner(self, genome)
             self.bam_sort()
         if method == "STAR":
-            aligner.tophat2_aligner(self, genome)
+            aligners.tophat2_aligner(self, genome)
             self.bam_sort()
         return self
 
     def sam2bam(self):
         #samtools view -Sb alignment_rep_prmt6+.sam > alignment_rep_PRMT6+.bam
-        samtool = aligner.samtool()
+        samtool = aligners.samtool()
         samtools = samtool.samtools
         print(samtools, 'view -Sb', self.sampath, '>', self.bampath)
         cmd = ' '.join([samtools, 'view -Sb', self.sampath, '>', self.bampath])
