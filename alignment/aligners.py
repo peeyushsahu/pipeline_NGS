@@ -55,6 +55,63 @@ class Bowtie2(object):
         #print(stderr)
         return version.split(' ')[2]
 
+    def align(self, lane, genome, uniquely_aligned_output_file, unaligned_fastq_file=None):
+        """Align a lane to a genome.
+        :return:
+        """
+        temp_outputfile = os.path.join(lane.temp_dir, lane.name + '_' + genome.name + '_' + self.name + '.sam')
+        print(temp_outputfile)
+
+        def align_to_sam():
+            """Run bowtie2"""
+            genome_index = genome.get_bowtie2_index()
+            parameters = self.parameters
+
+            parameters.extend([
+                '-t',
+                '-p', self.threads,
+                '-x', genome_index
+            ])
+
+            if not hasattr(lane, 'is_paired'):
+                if unaligned_fastq_file:
+                    if unaligned_fastq_file.endswith('.gz'):
+                        parameters.extend(['--un-gz', unaligned_fastq_file])
+                    elif unaligned_fastq_file.endswith('.bz2'):
+                        parameters.extend(['--un-bz2', unaligned_fastq_file])
+                    else:
+                        parameters.extend(['--un', unaligned_fastq_file])
+
+                parameters.extend([
+                    '-U', lane.get_input_filename_aligner()  # Write this function in lane.Lane class
+                ])
+
+            if hasattr(lane, 'is_paired'):
+                if unaligned_fastq_file:
+                    if unaligned_fastq_file.endswith('.gz'):
+                        parameters.extend(['--un-conc-gz', unaligned_fastq_file])
+                    elif unaligned_fastq_file.endswith('.bz2'):
+                        parameters.extend(['--un-conc-bz2', unaligned_fastq_file])
+                    else:
+                        parameters.extend(['--un-conc', unaligned_fastq_file])
+
+                one, two = lane.get_input_filename_aligner()
+                parameters.extend([
+                    '-1', one,
+                    '-2', two
+                ])
+
+            else:
+                sys.exit('lane does not have is_paired attribute.')
+
+            parameters.extend([
+                '-S', temp_outputfile + '.temp'
+            ])
+            parameters = [str(x) for x in parameters]
+            print(parameters)
+
+
+
 
 def tophat2_aligner(lane, genome):
     # setup our program variables

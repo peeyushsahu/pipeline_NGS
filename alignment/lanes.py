@@ -1,25 +1,34 @@
 from alignment import aligners
 
 __author__ = 'peeyush'
+# Standard library imports
 import subprocess as sp
 import os
 import timeit
-import alignment.commons
+# third party imports
 import pysam
 import random
+# local imports
+import alignment.commons
 
 
-class Lane():
-    def __init__(self, samplename, path):
+class Lane(object):
+    def __init__(self, samplename, input_files, paired=False):
         self.name = samplename
-        self.path = path
-        self.genome = None
-        self.fqpath = None
-        self.resultdir = None
-        self.sampath = None
-        self.bampath = None
-        self.temp_files = []
+        self.input_files = self.get_input_filename_aligner(input_files)
+        self.cache_dir = os.path.join('cache', 'Lane', self.name)
+        self.result_dir = os.path.join('results', 'Lane', self.name)
+        self.is_paired = paired
 
+    def get_input_filename_aligner(self, filename_or_directory):
+        """This will check if the given path is a filename, else iterate over all files in dir"""
+        if os.path.isfile(filename_or_directory):
+            return [filename_or_directory]
+        else:
+            res_fn = []
+            for file in os.listdir(filename_or_directory):
+                res_fn.append(os.path.join(filename_or_directory, file))
+            return res_fn
 
     def join_multiple_fq(self):
         self.resultdir = alignment.commons.create_odir()
@@ -28,7 +37,7 @@ class Lane():
         path = self.path
         outname = 'temp_' + self.name + '.fastq.gz'
         self.fqoutpath = os.path.join(fqdir, outname)
-        self.temp_files.append(self.fqoutpath)
+        self.temp_dir.append(self.fqoutpath)
         newfilename = 'cat '
         for i in os.listdir(path):
             if i.endswith("fastq.gz"):

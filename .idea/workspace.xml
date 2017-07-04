@@ -2,48 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="23f1d64f-be3a-4a4f-8e68-439239685b8c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="$PROJECT_DIR$/.idea/.name" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/annotate/Annotate.py" afterPath="$PROJECT_DIR$/annotate/Annotate.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/DESeq2.R" afterPath="$PROJECT_DIR$/rScripts/DESeq2.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/__init__.py" afterPath="$PROJECT_DIR$/alignment/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/annotate/__init__.py" afterPath="$PROJECT_DIR$/annotate/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/__init__.py" afterPath="$PROJECT_DIR$/overlap_analysis/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/peakcaller/__init__.py" afterPath="$PROJECT_DIR$/peakcaller/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plotsAndseq/__init__.py" afterPath="$PROJECT_DIR$/plotsAndseq/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/__init__.py" afterPath="$PROJECT_DIR$/rScripts/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rna_seq/__init__.py" afterPath="$PROJECT_DIR$/rna_seq/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stat_tests/__init__.py" afterPath="$PROJECT_DIR$/stat_tests/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/__init__.py" afterPath="$PROJECT_DIR$/test/__init__.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/aligners.py" afterPath="$PROJECT_DIR$/alignment/aligners.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rna_seq/bam_processing.py" afterPath="$PROJECT_DIR$/rna_seq/bam_processing.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/cal_genomic_region.py" afterPath="$PROJECT_DIR$/overlap_analysis/cal_genomic_region.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/commons.py" afterPath="$PROJECT_DIR$/alignment/commons.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/convert_mouse2human_genenames.R" afterPath="$PROJECT_DIR$/rScripts/convert_mouse2human_genenames.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/cuff_diff.R" afterPath="$PROJECT_DIR$/rScripts/cuff_diff.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/differential_binding.py" afterPath="$PROJECT_DIR$/overlap_analysis/differential_binding.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/overlap_analysis/filterPeaks.py" afterPath="$PROJECT_DIR$/overlap_analysis/filterPeaks.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/heatmap3.R" afterPath="$PROJECT_DIR$/rScripts/heatmap3.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/heatmap_FoldChange.R" afterPath="$PROJECT_DIR$/rScripts/heatmap_FoldChange.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/microarray_analysis.R" afterPath="$PROJECT_DIR$/rScripts/microarray_analysis.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/microarray_data.py" afterPath="$PROJECT_DIR$/microarray_data.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/multiprocess_peak_heatmap.py" afterPath="$PROJECT_DIR$/multiprocess_peak_heatmap.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/multiprocess_peak_overlap.py" afterPath="$PROJECT_DIR$/multiprocess_peak_overlap.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/peakcaller/peakCaller.py" afterPath="$PROJECT_DIR$/peakcaller/peakCaller.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/stat_tests/permutation.py" afterPath="$PROJECT_DIR$/stat_tests/permutation.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plotsAndseq/plots.py" afterPath="$PROJECT_DIR$/plotsAndseq/plots.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/prealignment.py" afterPath="$PROJECT_DIR$/alignment/prealignment.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/peakcaller/promoter_enrichment.py" afterPath="$PROJECT_DIR$/peakcaller/promoter_enrichment.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/qcMethods.py" afterPath="$PROJECT_DIR$/qcMethods.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/quality_check.py" afterPath="$PROJECT_DIR$/alignment/quality_check.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/rScript.R" afterPath="$PROJECT_DIR$/rScripts/rScript.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/retroT_analysis.py" afterPath="$PROJECT_DIR$/alignment/retroT_analysis.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/sahu.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/sahu.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/plotsAndseq/seqOperations.py" afterPath="$PROJECT_DIR$/plotsAndseq/seqOperations.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rna_seq/some_methods.py" afterPath="$PROJECT_DIR$/rna_seq/some_methods.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/rScripts/tssHeatmap.R" afterPath="$PROJECT_DIR$/rScripts/tssHeatmap.R" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/vally_peaks.py" afterPath="$PROJECT_DIR$/vally_peaks.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/lanes.py" afterPath="$PROJECT_DIR$/alignment/lanes.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pipeline_NGS.iws" />
@@ -91,7 +51,7 @@
         <entry file="file://$PROJECT_DIR$/genome/ensembl.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="8" column="12" selection-start-line="8" selection-start-column="12" selection-end-line="8" selection-end-column="12" />
+              <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="15" />
               <folding>
                 <element signature="e#48#57#0" expanded="true" />
               </folding>
@@ -99,14 +59,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="aligners.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="aligners.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/alignment/aligners.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.40298507">
-              <caret line="49" column="29" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="85" column="31" selection-start-line="85" selection-start-column="31" selection-end-line="85" selection-end-column="59" />
               <folding>
                 <element signature="e#51#74#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lanes.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/alignment/lanes.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.5671642">
+              <caret line="55" column="24" selection-start-line="55" selection-start-column="24" selection-end-line="55" selection-end-column="24" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -163,8 +133,9 @@
         <option value="$PROJECT_DIR$/alignment/ensembl.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/alignment/aligner.py" />
-        <option value="$PROJECT_DIR$/alignment/aligners.py" />
         <option value="$PROJECT_DIR$/bin/run.py" />
+        <option value="$PROJECT_DIR$/alignment/aligners.py" />
+        <option value="$PROJECT_DIR$/alignment/lanes.py" />
       </list>
     </option>
   </component>
@@ -481,7 +452,13 @@
       <option name="project" value="LOCAL" />
       <updated>1499090069500</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added ensembl genome wrapper and adding bowtie2 wrapper">
+      <created>1499091590541</created>
+      <option name="number" value="00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1499091590541</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -493,11 +470,11 @@
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3290735" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3290735" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -619,13 +596,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/alignment/lanes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="5" column="4" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/alignment/quality_check.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -670,23 +640,31 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/alignment/aligners.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="85" column="31" selection-start-line="85" selection-start-column="31" selection-end-line="85" selection-end-column="59" />
+          <folding>
+            <element signature="e#51#74#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/genome/ensembl.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="12" selection-start-line="8" selection-start-column="12" selection-end-line="8" selection-end-column="12" />
+          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="15" />
           <folding>
             <element signature="e#48#57#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/alignment/aligners.py">
+    <entry file="file://$PROJECT_DIR$/alignment/lanes.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40298507">
-          <caret line="49" column="29" selection-start-line="49" selection-start-column="29" selection-end-line="49" selection-end-column="29" />
-          <folding>
-            <element signature="e#51#74#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.5671642">
+          <caret line="55" column="24" selection-start-line="55" selection-start-column="24" selection-end-line="55" selection-end-column="24" />
+          <folding />
         </state>
       </provider>
     </entry>
