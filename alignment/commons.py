@@ -25,6 +25,7 @@ def create_odir():
 
 
 def ensure_path(path):
+    path = os.path.join(os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..')), path)
     if not os.path.exists(path):
         os.makedirs(path)
 

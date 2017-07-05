@@ -13,12 +13,13 @@ import alignment.commons
 
 
 class Lane(object):
-    def __init__(self, samplename, input_files, paired=False):
+    def __init__(self, samplename, input_files, paired=False, trim_5_prime=0, trim_3_prime=0):
         self.name = samplename
         self.input_files = self.get_input_filename_aligner(input_files)
-        self.cache_dir = os.path.join('cache', 'Lane', self.name)
         self.result_dir = os.path.join('results', 'Lane', self.name)
         self.is_paired = paired
+        self.trim_5_prime = trim_5_prime
+        self.trim_3_prime = trim_3_prime
 
     def get_input_filename_aligner(self, filename_or_directory):
         """This will check if the given path is a filename, else iterate over all files in dir"""
@@ -27,88 +28,43 @@ class Lane(object):
         else:
             res_fn = []
             for file in os.listdir(filename_or_directory):
-                res_fn.append(os.path.join(filename_or_directory, file))
+                if file.endswith('.fastq') or file.endswith('.fastq.gz'):
+                    res_fn.append(os.path.join(filename_or_directory, file))
             return res_fn
 
-    def join_multiple_fq(self):
-        self.resultdir = alignment.commons.create_odir()
-        fqdir = os.path.join(self.resultdir, 'cache', self.name)
-        alignment.commons.ensure_path(fqdir)
-        path = self.path
-        outname = 'temp_' + self.name + '.fastq.gz'
-        self.fqoutpath = os.path.join(fqdir, outname)
-        self.temp_dir.append(self.fqoutpath)
-        newfilename = 'cat '
-        for i in os.listdir(path):
-            if i.endswith("fastq.gz"):
-                newfilename = os.path.join(newfilename+" "+path,i)
-        newfilename = newfilename+" > "+self.fqoutpath
-        print(newfilename)
-        parameter = open(fqdir+'/parameter.txt', 'w')
-        parameter.write(newfilename)
-        parameter.close()
-        proc = sp.Popen([newfilename], shell=True)
-        proc.wait()
-        #os.remove(self.fqoutpath)
-        print(outname)
+    def align(self, genome, aligner, name=None):
+        """Returns AlignedLane object for sent Lane"""
+        if not hasattr(genome, 'get_chromosome_length'):
+            raise TypeError("Genome needs to be a genome-object e.g. ensembl.EnsemblGenome")
+        AlignedLane(self, genome, aligner, name=name)
 
-    def all_fq_commasep(self):
-        path = self.path
-        newfilename = []
-        for i in os.listdir(path):
-            if i.endswith("fastq.gz"):
-                newfilename.append(os.path.join(path,i))
-        all_file = ','.join(newfilename)
-        return all_file
+    def do_quality_control(self):
+        return
 
-    def do_alignment(self, genome, method):
+
+class AlignedLane(object):
+
+    def __init__(self, lane, genome, aligner, name=None):
+        self.lane = lane
+        self.aligner = aligner
         self.genome = genome
-        if method == "Bowtie2":
-            aligners.bowtie2_aligner(self, genome)
-            self.sam2bam()
-            self.bam_sort()
-        if method == "Tophat2":
-            aligners.tophat2_aligner(self, genome)
-            self.bam_sort()
-        if method == "STAR":
-            aligners.tophat2_aligner(self, genome)
-            self.bam_sort()
-        return self
+        if not hasattr(self, 'name'):
+            if not name:
+                self.name = '%s_aligned_with_%s_against%s' %(self.lane.name, self.aligner.name, self.genome.name)
+            else:
+                self.name = name
+        self.result_dir = os.path.join('results', 'AlignedLane', self.name)
+        self.unique_output_filename = os.path.join(self.result_dir, 'aligned_unique_%s.bam' % self.name)
+        self.failed_align_filename = os.path.join(self.result_dir, 'aligned_fail_%s.fastq.gz' % self.name)
+        self.align()
 
-    def sam2bam(self):
-        #samtools view -Sb alignment_rep_prmt6+.sam > alignment_rep_PRMT6+.bam
-        samtool = aligners.samtool()
-        samtools = samtool.samtools
-        print(samtools, 'view -Sb', self.sampath, '>', self.bampath)
-        cmd = ' '.join([samtools, 'view -Sb', self.sampath, '>', self.bampath])
-        try:
-            proc = sp.Popen(cmd, shell=True)
-            proc.wait()
-        except:
-            raise IOError("Problem with samtools sam 2 bam.")
-
-    def bam_sort(self):
-        self.sortbampath = os.path.join(self.resultdir, 'alignedLane', self.name, self.name + '_' + self.genome.name)
-        print(self.sortbampath)
-        try:
-            pysam.sort(self.bampath, self.sortbampath)
-            self.bampath = self.sortbampath+'.bam'
-        except:
-            raise IOError("Problem in bam sorting.")
-
-    def bam_index(self):
-        try:
-            pysam.index(self.bampath)
-        except:
-            raise RuntimeError("Error in Bam indexing")
-        self.remove_temp()
-
-    def remove_temp(self):
-        for i in self.temp_files:
-            os.remove(i)
+    def align(self):
+        alignment.commons.ensure_path(self.result_dir)
+        self.aligner.align(self, self.lane, self.genome, self.unique_output_filename, self.failed_align_filename)
+        return None
 
 
-class AlignedLaneDedup():
+class AlignedLaneDedup(object):
     def __init__(self, Lane):
         self.name = Lane.name
         self.genome = Lane.genome
