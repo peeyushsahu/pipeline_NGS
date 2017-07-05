@@ -24,10 +24,16 @@ def create_odir():
     return os.path.join(cdpath, odir)
 
 
+def get_basepath():
+    """Returns the path for creating the result directories"""
+    return os.path.join(os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..')), path)
+
+
 def ensure_path(path):
-    path = os.path.join(os.path.abspath(os.path.join(os.path.join(os.path.dirname(__file__), '..'), '..')), path)
+    """Ensure if path exists else creates path"""
     if not os.path.exists(path):
         os.makedirs(path)
+    return path
 
 
 def to_bed(peaks):

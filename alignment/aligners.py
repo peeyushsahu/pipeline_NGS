@@ -12,7 +12,7 @@ import alignment.commons as common
 import genome.ensembl as ensembl
 
 
-tools_folder = '/ps/imt/Pipeline_development/tools'
+tools_folder = '/home/peeyush/PycharmProjects/pipeline_development/tools'
 
 
 class samtool():

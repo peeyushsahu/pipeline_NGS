@@ -9,17 +9,20 @@ import timeit
 import pysam
 import random
 # local imports
-import alignment.commons
+import alignment
 
 
 class Lane(object):
+    """Basic lane for unaligned files"""
     def __init__(self, samplename, input_files, paired=False, trim_5_prime=0, trim_3_prime=0):
         self.name = samplename
         self.input_files = self.get_input_filename_aligner(input_files)
-        self.result_dir = os.path.join('results', 'Lane', self.name)
         self.is_paired = paired
         self.trim_5_prime = trim_5_prime
         self.trim_3_prime = trim_3_prime
+        self.base_path = alignment.commons.get_basepath()
+        self.result_dir = os.path.join(self.base_path, 'results', 'Lane', self.name)
+        print(self.base_path)
 
     def get_input_filename_aligner(self, filename_or_directory):
         """This will check if the given path is a filename, else iterate over all files in dir"""
@@ -43,7 +46,7 @@ class Lane(object):
 
 
 class AlignedLane(object):
-
+    """Lane containing aligned information"""
     def __init__(self, lane, genome, aligner, name=None):
         self.lane = lane
         self.aligner = aligner
@@ -53,7 +56,7 @@ class AlignedLane(object):
                 self.name = '%s_aligned_with_%s_against%s' %(self.lane.name, self.aligner.name, self.genome.name)
             else:
                 self.name = name
-        self.result_dir = os.path.join('results', 'AlignedLane', self.name)
+        self.result_dir = os.path.join(lane.base_path, 'results', 'AlignedLane', self.name)
         self.unique_output_filename = os.path.join(self.result_dir, 'aligned_unique_%s.bam' % self.name)
         self.failed_align_filename = os.path.join(self.result_dir, 'aligned_fail_%s.fastq.gz' % self.name)
         self.align()
@@ -62,6 +65,9 @@ class AlignedLane(object):
         alignment.commons.ensure_path(self.result_dir)
         self.aligner.align(self, self.lane, self.genome, self.unique_output_filename, self.failed_align_filename)
         return None
+
+    def do_quality_control(self):
+        return
 
 
 class AlignedLaneDedup(object):
