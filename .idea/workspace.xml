@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="23f1d64f-be3a-4a4f-8e68-439239685b8c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/aligners.py" afterPath="$PROJECT_DIR$/alignment/aligners.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/genome/ensembl.py" afterPath="$PROJECT_DIR$/genome/ensembl.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="pipeline_NGS.iws" />
@@ -37,20 +35,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.26732674">
-              <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="0" column="1" selection-start-line="0" selection-start-column="1" selection-end-line="0" selection-end-column="1" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ensembl.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ensembl.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/genome/ensembl.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.56796116">
+            <state vertical-scroll-proportion="0.0">
               <caret line="60" column="81" selection-start-line="60" selection-start-column="81" selection-end-line="60" selection-end-column="81" />
               <folding>
                 <element signature="e#48#57#0" expanded="true" />
@@ -133,7 +131,6 @@
         <option value="$PROJECT_DIR$/alignment/quality_check.py" />
         <option value="$PROJECT_DIR$/alignment/genome.py" />
         <option value="$PROJECT_DIR$/alignment/ensembl.py" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/alignment/aligner.py" />
         <option value="$PROJECT_DIR$/alignment/__init__.py" />
         <option value="$PROJECT_DIR$/bin/run.py" />
@@ -141,6 +138,7 @@
         <option value="$PROJECT_DIR$/alignment/lanes.py" />
         <option value="$PROJECT_DIR$/alignment/aligners.py" />
         <option value="$PROJECT_DIR$/genome/ensembl.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -475,7 +473,13 @@
       <option name="project" value="LOCAL" />
       <updated>1499269515742</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="adding Lanes, bowtie2 wrapper and aligner">
+      <created>1499270113340</created>
+      <option name="number" value="00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1499270113340</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TodoView">
@@ -641,14 +645,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.26732674">
-          <caret line="3" column="22" selection-start-line="3" selection-start-column="22" selection-end-line="3" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/alignment/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.11940298">
@@ -697,11 +693,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/genome/ensembl.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.56796116">
+        <state vertical-scroll-proportion="0.0">
           <caret line="60" column="81" selection-start-line="60" selection-start-column="81" selection-end-line="60" selection-end-column="81" />
           <folding>
             <element signature="e#48#57#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="1" selection-start-line="0" selection-start-column="1" selection-end-line="0" selection-end-column="1" />
+          <folding />
         </state>
       </provider>
     </entry>
