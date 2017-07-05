@@ -58,7 +58,7 @@ class EnsemblGenome:
         """Get bowtie2 index path for passing to bowtie2 aligner
         :return:
         """
-        return os.path.join(self.genome_path, 'Sequence', 'Bowtie2Index')
+        return os.path.join(self.genome_path, 'Sequence', 'Bowtie2Index', 'genome')
 
     def get_bwa_index(self, version=None):
         """Get bowtie2 index path for passing to bowtie2 aligner

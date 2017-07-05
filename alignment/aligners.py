@@ -112,6 +112,7 @@ class Bowtie2(object):
         stderr = subprocess.PIPE
         cmd = [os.path.join(tools_folder, self.name, self.name)]
         cmd.extend(parameter)
+        print(' '.join(cmd))
         p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
         stdout, stderr = p.communicate()
         return stdout, stderr
