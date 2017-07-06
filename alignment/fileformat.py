@@ -7,8 +7,8 @@ import timeit
 import sys
 
 path = '/home/peeyush/PycharmProjects/pipeline_development/fastq_test_file.fastq'
-i = 0
 
+i = 1
 base_freq_matrix = {key: dict.fromkeys(['A', 'T', 'G', 'C', 'N'], 0) for key in range(51)}
 phred_quality_matrix = {key: dict.fromkeys([i for i in range(1, 43, 1)], 0) for key in range(51)}
 
