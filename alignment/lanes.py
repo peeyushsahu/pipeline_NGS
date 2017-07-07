@@ -57,12 +57,14 @@ class AlignedLane(object):
             else:
                 self.name = name
         self.result_dir = os.path.join(lane.base_path, 'results', 'AlignedLane', self.name)
+        self.cache_dir = os.path.join(lane.base_path, 'cache', 'AlignedLane', self.name)
         self.unique_output_filename = os.path.join(self.result_dir, 'aligned_unique_%s.bam' % self.name)
         self.failed_align_filename = os.path.join(self.result_dir, 'aligned_fail_%s.fastq.gz' % self.name)
         self.align()
 
     def align(self):
         alignment.commons.ensure_path(self.result_dir)
+        alignment.commons.ensure_path(self.cache_dir)
         self.aligner.align(self, self.lane, self.genome, self.unique_output_filename, self.failed_align_filename)
         return None
 

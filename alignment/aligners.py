@@ -47,7 +47,7 @@ class Bowtie2(object):
         """Align a lane to a genome.
         :return:
         """
-        temp_outputfile = os.path.join(alignedlane.result_dir, lane.name + '_' + genome.name + '_' + self.name + '.sam')
+        temp_outputfile = os.path.join(alignedlane.cache_dir, lane.name + '_' + genome.name + '_' + self.name + '.sam')
         print(temp_outputfile)
 
         def align_to_sam():
@@ -90,14 +90,41 @@ class Bowtie2(object):
                 '-S', temp_outputfile
             ])
             parameters = [str(x) for x in parameters]
-            stdout, stderr = self.call_bowtie2(parameters)
+            stdout, stderr = self.call_bowtie2(parameters)  # calling bowtie2 aligner
             print(stdout, stderr)
+            try:
+                file = open(uniquely_aligned_output_file[:-4] + '_bowtie_stats.txt', 'w')
+                for line in stderr.decode("utf-8").split('\n'):
+                    print(line)
+                    file.write(str(line)+'\n')
+                file.close()
+            except Exception as e:
+                raise IOError(e)
 
         def sam_2_bam():
             """Now we will convert bowtie sam output to bam and sort and index it"""
             common.sam_2_bam(tools_folder, temp_outputfile, uniquely_aligned_output_file)
-        align_to_sam()
-        sam_2_bam()
+
+        def bam_2_tdf():
+            """Now one more conversion bam --> tdf for igv (these tracks are light)"""
+            stdout, stderr = common.bam_2_tdf(tools_folder, uniquely_aligned_output_file, window_size=5)
+            try:
+                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stderr'), 'wb')
+                file.write(stderr)
+                file.close()
+                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stdout'), 'wb')
+                file.write(stderr)
+                file.close()
+            except Exception as e:
+                print('Error:',e)
+                pass
+        #align_to_sam()
+        #sam_2_bam()
+        bam_2_tdf()
+        if os.path.exists(temp_outputfile):
+            print('Removing sam file')
+            os.remove(temp_outputfile)
+        return None
 
     def call_bowtie2(self, parameter):
         """Calls real bowtie2"""
