@@ -13,6 +13,7 @@ i = 0
 base_freq_matrix = {key: dict.fromkeys(['A', 'T', 'G', 'C', 'N'], 0) for key in range(51)}
 phred_quality_matrix = {key: dict.fromkeys([i for i in range(1, 43, 1)], 0) for key in range(51)}
 seq_length_dist = dict.fromkeys(range(1, 101, 1), 0)
+seq_gc_dist = dict.fromkeys(range(1, 101, 1), 0)
 
 start = timeit.default_timer()
 with open(path, "rU") as handle:
@@ -23,14 +24,16 @@ with open(path, "rU") as handle:
         #sys.stdout.write("\r%d%%" % i)
         #sys.stdout.flush()
         seq_length_dist[len(record.seq)] = seq_length_dist.get(len(record.seq), 0) + 1
-        print('GC:', GC(record.seq))
+        gc = round(GC(record.seq))
+        seq_gc_dist[gc] = seq_gc_dist.get(gc, 0) + 1
+        #print('GC:', GC(record.seq))
         for ind in range(len(record.seq)):
             seq_letter = record.seq[ind]
             base_freq_matrix[ind][seq_letter] = base_freq_matrix[ind].get('G', 0) + 1
             phred_qual = record.letter_annotations["phred_quality"][ind]
             phred_quality_matrix[ind][phred_qual] = phred_quality_matrix[ind].get(phred_qual, 0) + 1
         i += 1
-        if i == 5: break
+        #if i == 5000: break
 handle.close()
 stop = timeit.default_timer()
 print('Total seq analysed:', i)
@@ -45,6 +48,12 @@ with open('/ps/imt/Pipeline_development/results/AlignedLane/seq_length_distribut
     file.write('length\tcount\n')
     for key in seq_length_dist.keys():
         file.write(str(key)+'\t'+str(seq_length_dist[key])+'\n')
+file.close()
+
+with open('/ps/imt/Pipeline_development/results/AlignedLane/seq_GC_distribution.tsv', 'wt') as file:
+    file.write('GC_percent\tseq_count\n')
+    for key in seq_gc_dist.keys():
+        file.write(str(key)+'\t'+str(seq_gc_dist[key])+'\n')
 file.close()
 
 
