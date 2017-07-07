@@ -18,7 +18,7 @@ seq_gc_dist = dict.fromkeys(range(1, 101, 1), 0)
 start = timeit.default_timer()
 with open(path, "rU") as handle:
     for record in seqio.parse(handle, "fastq"):
-    #for record in seqio.parse(path, 'fastq'):
+    for record in seqio.parse(path, 'fastq'):
         """record.id, record.seq, record.letter_annotations["phred_quality"]
         """
         #sys.stdout.write("\r%d%%" % i)
