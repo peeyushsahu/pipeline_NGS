@@ -6,7 +6,6 @@ import os
 # Third party library imports
 import pandas as pd
 # Local imports
-import annotate as Annotate
 
 
 def get_basepath():
@@ -27,7 +26,7 @@ def sam_2_bam(tools_path, sam_path, bam_path):
     samtool = os.path.join(tools_path, name, 'samtools')
     cmd = [samtool, 'view', '-b', sam_path, '-o', bam_path]
     print('#################### Sam to Bam conversion ###################')
-    print(cmd)
+    #print(cmd)
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
@@ -38,7 +37,7 @@ def sam_2_bam(tools_path, sam_path, bam_path):
     # sorting bam
     cmd1 = [samtool, 'sort', '-l 9', '-o', bam_path, bam_path]
     print('#################### Bam sorting ###################')
-    print(cmd1)
+    #print(cmd1)
     try:
         proc = subprocess.Popen(cmd1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
@@ -49,7 +48,7 @@ def sam_2_bam(tools_path, sam_path, bam_path):
     # indexing bam
     cmd2 = [samtool, 'index', '-b', bam_path]
     print('#################### Bam indexing ###################')
-    print(cmd1)
+    #print(cmd2)
     try:
         proc = subprocess.Popen(cmd2, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
@@ -65,38 +64,34 @@ def to_bed(peaks):
     return pd.DataFrame(bed)
 
 
-def bamtotdf(tools_path, bam_path):
+def bam_2_tdf(tools_path, bam_file_path, window_size=10, max_zoom=5, read_extension_factor=None, genome_name='hg19'):
     '''
     Convert BAM to TDF, TDF can be visualized on IGV browser.
     It is the distribution of bam file so very light.
     :return:
     '''
-    import subprocess as sp
-    import os, re
-    outpath = '/ps/imt/e/20141009_AG_Bauer_peeyush_re_analysis/results/bamTotdf'
-    igvtools = os.path.join(tools_path, 'IGVTools')
-    bam_folder = '/ps/imt/e/20141009_AG_Bauer_peeyush_re_analysis/results/AlignedLane'
-    bam_list = os.listdir(bam_folder)
-    bampath_dict = {}
-    for i in bam_list:
-        if 'dedup' in i:
-                Dir = os.path.join(bam_folder, i)
-                #print Dir
-                for j in os.listdir(Dir):
-                    if j.endswith('.bam'):
-                        filename = re.split('unique_|__aligned', i)
-                        bam_path = os.path.join(Dir, j)
-                        bampath_dict[filename[0]] = bam_path
-                        #print(filename, Dir)
-                        #print('\nBam file selected: '+j)
-    ## Running igvtools
-    for name, bampath in bampath_dict.items():
-        print(name)
-        tdf_name = os.path.join(outpath, name+'_dedup_w10.tdf')
-        cmd = [igvtools, 'count', '-w', '10', bampath, tdf_name, 'hg19']
-        proc = sp.Popen(cmd, stderr=sp.PIPE, stdout=sp.PIPE)
-        proc.wait()
-    return bampath_dict
+    igvtools = [os.path.join(tools_path, 'IGVTools', 'igvtools')]
+    print(bam_file_path)
+    tdf_name = os.path.join(''.join([bam_file_path[:-4]+'.tdf']))
+    cmd = igvtools
+    cmd.extend(['count',
+                '-w', window_size,
+                '-z', max_zoom
+                ])
+    if read_extension_factor:
+        cmd.extend(['-e', read_extension_factor])
+    cmd.extend([bam_file_path, tdf_name, genome_name])
+    print('#################### converting bam to TDF for IGV')
+    print(cmd)
+    cmd = [str(x) for x in cmd]
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+        print(stdout, stderr)
+        return stdout, stderr
+    except Exception as e:
+        raise IOError('Error in IGVTools:', e)
+
 
 
 def peakdf_columns():
