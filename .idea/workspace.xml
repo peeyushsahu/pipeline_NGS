@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="23f1d64f-be3a-4a4f-8e68-439239685b8c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/aligners.py" afterPath="$PROJECT_DIR$/alignment/aligners.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/commons.py" afterPath="$PROJECT_DIR$/alignment/commons.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/lanes.py" afterPath="$PROJECT_DIR$/alignment/lanes.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+    <list default="true" id="23f1d64f-be3a-4a4f-8e68-439239685b8c" name="Default" comment="1. added gitignore&#10;2. working of fastq qc">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/alignment/quality_check.py" afterPath="$PROJECT_DIR$/alignment/quality_check.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -40,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.086538464">
-              <caret line="2" column="5" selection-start-line="2" selection-start-column="5" selection-end-line="2" selection-end-column="5" />
+            <state vertical-scroll-proportion="-0.72">
+              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -108,11 +104,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="quality_check.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="quality_check.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/alignment/quality_check.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="24" column="33" selection-start-line="24" selection-start-column="33" selection-end-line="24" selection-end-column="33" />
+            <state vertical-scroll-proportion="0.5080906">
+              <caret line="26" column="34" selection-start-line="26" selection-start-column="34" selection-end-line="26" selection-end-column="34" />
               <folding>
                 <element signature="e#21#46#0" expanded="true" />
               </folding>
@@ -145,8 +141,8 @@
         <option value="$PROJECT_DIR$/alignment/lanes.py" />
         <option value="$PROJECT_DIR$/alignment/commons.py" />
         <option value="$PROJECT_DIR$/alignment/aligners.py" />
-        <option value="$PROJECT_DIR$/alignment/quality_check.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/alignment/quality_check.py" />
       </list>
     </option>
   </component>
@@ -562,7 +558,31 @@
       <option name="project" value="LOCAL" />
       <updated>1499342966481</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="1. added gitignore&#10;2. working of fastq qc">
+      <created>1499427891876</created>
+      <option name="number" value="00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1499427891876</updated>
+    </task>
+    <task id="LOCAL-00012" summary="1. added gitignore&#10;2. working of fastq qc">
+      <created>1499431764576</created>
+      <option name="number" value="00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1499431764577</updated>
+    </task>
+    <task id="LOCAL-00013" summary="1. added gitignore&#10;2. working of fastq qc">
+      <created>1499433975318</created>
+      <option name="number" value="00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1499433975318</updated>
+    </task>
+    <task id="LOCAL-00014" summary="1. added gitignore&#10;2. working of fastq qc">
+      <created>1499434020055</created>
+      <option name="number" value="00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1499434020055</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TodoView">
@@ -617,7 +637,8 @@
     <MESSAGE value="adding Lanes, bowtie2 wrapper and aligner" />
     <MESSAGE value="added folder bin" />
     <MESSAGE value="Bowtie2 aligner for unpaired reads + sam-&gt;bam, sort, index" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bowtie2 aligner for unpaired reads + sam-&gt;bam, sort, index" />
+    <MESSAGE value="1. added gitignore&#10;2. working of fastq qc" />
+    <option name="LAST_COMMIT_MESSAGE" value="1. added gitignore&#10;2. working of fastq qc" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -828,16 +849,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/genome/ensembl.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="51" column="62" selection-start-line="51" selection-start-column="62" selection-end-line="51" selection-end-column="62" />
-          <folding>
-            <element signature="e#48#57#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/alignment/lanes.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -866,21 +877,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/alignment/quality_check.py">
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.72">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/genome/ensembl.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="24" column="33" selection-start-line="24" selection-start-column="33" selection-end-line="24" selection-end-column="33" />
+          <caret line="51" column="62" selection-start-line="51" selection-start-column="62" selection-end-line="51" selection-end-column="62" />
           <folding>
-            <element signature="e#21#46#0" expanded="true" />
+            <element signature="e#48#57#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
+    <entry file="file://$PROJECT_DIR$/../venv_pipeline/lib/python3.4/site-packages/Bio/SeqIO/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.086538464">
-          <caret line="2" column="5" selection-start-line="2" selection-start-column="5" selection-end-line="2" selection-end-column="5" />
+        <state vertical-scroll-proportion="0.33333334">
+          <caret line="608" column="0" selection-start-line="608" selection-start-column="0" selection-end-line="608" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/alignment/quality_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5080906">
+          <caret line="26" column="34" selection-start-line="26" selection-start-column="34" selection-end-line="26" selection-end-column="34" />
+          <folding>
+            <element signature="e#21#46#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
