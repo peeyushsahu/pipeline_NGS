@@ -164,7 +164,7 @@ def fast_qc(zipped_file_path):
 
 def mp_fastqc(fq_filepaths, cpus=4):
     import multiprocessing
-
+    start = timeit.default_timer()
     def worker(fq_filepath, out_queq):
         print(fq_filepath)
         sample_name = fq_filepath.split('/')[-1]
@@ -191,6 +191,8 @@ def mp_fastqc(fq_filepaths, cpus=4):
 
     print(len(result_dist))
     print(result_dist)
+    stop = timeit.default_timer()
+    print('time consumed in processing:', stop-start)
 
 
 
