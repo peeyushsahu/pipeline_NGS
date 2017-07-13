@@ -202,6 +202,7 @@ def mp_fastqc(fq_filepaths):
         p = multiprocessing.Process(
             target=worker,
             args=(i, input_queq, out_queq))
+        nproc.append(p)
         p.start()
 
     for file in fq_filepaths:
