@@ -10,7 +10,8 @@ import collections
 from Bio.SeqUtils import GC
 
 path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq'
-zipped_path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq.gz'
+#zipped_path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq.gz'
+zipped_path = '/home/peeyush/PycharmProjects/pipeline_development/part_test_file.fastq.gz'
 
 base_freq_dict = {key: dict.fromkeys(['A', 'T', 'G', 'C', 'N'], 0) for key in range(51)}
 nucleotide_phred_quality_dict = {key: dict.fromkeys([i for i in range(1, 43, 1)], 0) for key in range(51)}
@@ -90,6 +91,7 @@ stop = timeit.default_timer()
 
 
 def fast_qc(zipped_file_path):
+    print('I am in')
     base_freq_dict = {key: dict.fromkeys(['A', 'T', 'G', 'C', 'N'], 0) for key in range(51)}
     nucleotide_phred_quality_dict = {key: dict.fromkeys([i for i in range(1, 43, 1)], 0) for key in range(51)}
     seq_length_dist = dict.fromkeys(range(1, 101, 1), 0)
@@ -152,9 +154,15 @@ def fast_qc(zipped_file_path):
                 i += 1
         except Exception as e:
             print(e)
-            raise ValueError('number of seq:'+str(i))
+            raise ValueError('number of seq analysed:'+str(i))
         finally:
             handle.close()
+
+    print({'seq_qual_dict': seq_qual_dict,
+    'nucleotide_phred_quality_dict': nucleotide_phred_quality_dict,
+    'base_freq_dict': base_freq_dict,
+    'seq_length_dist': seq_length_dist,
+    'seq_gc_dict': seq_gc_dict})
     return {'seq_qual_dict': seq_qual_dict,
     'nucleotide_phred_quality_dict': nucleotide_phred_quality_dict,
     'base_freq_dict': base_freq_dict,
@@ -162,37 +170,58 @@ def fast_qc(zipped_file_path):
     'seq_gc_dict': seq_gc_dict}
 
 
-def mp_fastqc(fq_filepaths, cpus=4):
+def mp_fastqc(fq_filepaths):
     import multiprocessing
-    start = timeit.default_timer()
-    def worker(fq_filepath, out_queq):
-        print(fq_filepath)
-        sample_name = fq_filepath.split('/')[-1]
-        out_dict = {}
-        out_dict[sample_name] = fast_qc(fq_filepath)
-        out_queq.put(out_dict)
 
+    def worker(args, input_queq, reqult_queq):
+
+        while True:
+        #for fq_path in iter(input_queq.get()):
+            fq_path = input_queq.get()
+            print(fq_path)
+            if fq_path is None:
+                print('Worker % is exiting' %args)
+                break
+            sample_name = fq_path.split('/')[-1]
+            out_dict = {}
+            try:
+                out_dict[sample_name] = fast_qc(fq_path)
+                reqult_queq.put(out_dict)
+            except:
+                reqult_queq.put('Error:'+fq_path)
+        return
+
+    input_queq = multiprocessing.Queue()
     out_queq = multiprocessing.Queue()
     nproc = []
 
-    for file in fq_filepaths:
+    no_cpus = int(multiprocessing.cpu_count())
+    print('Creating %d of consumers' %no_cpus)
+
+    for i in range(no_cpus):
         p = multiprocessing.Process(
             target=worker,
-            args=(file, out_queq))
+            args=(i, input_queq, out_queq))
         nproc.append(p)
         p.start()
 
-    result_dist = {}
-    for proc in nproc:
-        result_dist.update(out_queq.get())
+    for file in fq_filepaths:
+        input_queq.put(file)
+
+    for i in range(no_cpus):
+        input_queq.put(None)
+
+    result_dict = {}
+    result = out_queq.qsize()
+    while result:
+        result_dict.update(out_queq.get())
+        result -= 1
 
     for p in nproc:
         p.join()
 
-    print(len(result_dist))
-    print(result_dist)
-    stop = timeit.default_timer()
-    print('time consumed in processing:', stop-start)
+    print(len(result_dict))
+    print(result_dict)
 
 
 
