@@ -245,14 +245,6 @@ def fast_qc(zipped_file_path):
             raise ValueError(e)
         finally:
             handle.close()
-    print({'seq_qual_dict': seq_qual_dict,
-            'nucleotide_phred_quality_dict': nucleotide_phred_quality_dict,
-            'base_freq_dict': base_freq_dict,
-            'seq_length_dist': seq_length_dist,
-            'seq_gc_dict': seq_gc_dict,
-            'flowcell_tile_qual_dict': flowcell_tile_qual_dict,
-            'flowcell_seq_count_dict': flowcell_seq_count_dict
-            })
     return {'seq_qual_dict': seq_qual_dict,
             'nucleotide_phred_quality_dict': nucleotide_phred_quality_dict,
             'base_freq_dict': base_freq_dict,
@@ -268,51 +260,24 @@ def join_laneqc_result_dict(dict_result_dicts):
     primary_keys = list(dict_result_dicts.keys())
     print(primary_keys)
     #  Joining single level dict
-    seq_qual_dict = dict_result_dicts[primary_keys[0]]['seq_qual_dict']
-    for key1 in seq_qual_dict.keys():
-        for keyn in primary_keys[1:]:
-            seq_qual_dict[key1] += dict_result_dicts[keyn]['seq_qual_dict'][key1]
-    final_dict['seq_qual_dict'] = seq_qual_dict
-
-    seq_length_dist = dict_result_dicts[primary_keys[0]]['seq_length_dist']
-    for key1 in seq_length_dist.keys():
-        for keyn in primary_keys[1:]:
-            seq_length_dist[key1] += dict_result_dicts[keyn]['seq_length_dist'][key1]
-    final_dict['seq_length_dist'] = seq_length_dist
-
-    seq_gc_dict = dict_result_dicts[primary_keys[0]]['seq_gc_dict']
-    for key1 in seq_gc_dict.keys():
-        for keyn in primary_keys[1:]:
-            seq_gc_dict[key1] += dict_result_dicts[keyn]['seq_gc_dict'][key1]
-    final_dict['seq_gc_dict'] = seq_gc_dict
-
-    flowcell_seq_count_dict = dict_result_dicts[primary_keys[0]]['flowcell_seq_count_dict']
-    for key1 in flowcell_seq_count_dict.keys():
-        for keyn in primary_keys[1:]:
-            flowcell_seq_count_dict[key1] += dict_result_dicts[keyn]['flowcell_seq_count_dict'][key1]
-    final_dict['flowcell_seq_count_dict'] = flowcell_seq_count_dict
-
+    for dict_name in ['seq_qual_dict', 'seq_length_dist', 'seq_gc_dict', 'flowcell_seq_count_dict']:
+        dict = dict_result_dicts[primary_keys[0]][dict_name]
+        for key1 in dict.keys():
+            for keyn in primary_keys[1:]:
+                dict[key1] += dict_result_dicts[keyn][dict_name][key1]
+        final_dict[dict_name] = dict
     #  joining two-level dict
-    nucleotide_phred_quality_dict = dict_result_dicts[primary_keys[0]]['nucleotide_phred_quality_dict']
-    for key1 in nucleotide_phred_quality_dict.keys():
-        for key11 in nucleotide_phred_quality_dict[key1].keys():
-            for keyn in primary_keys[1:]:
-                nucleotide_phred_quality_dict[key1][key11] += dict_result_dicts[keyn]['nucleotide_phred_quality_dict'][key1][key11]
-    final_dict['nucleotide_phred_quality_dict'] = nucleotide_phred_quality_dict
-
-    base_freq_dict = dict_result_dicts[primary_keys[0]]['base_freq_dict']
-    for key1 in base_freq_dict.keys():
-        for key11 in base_freq_dict[key1].keys():
-            for keyn in primary_keys[1:]:
-                base_freq_dict[key1][key11] += dict_result_dicts[keyn]['base_freq_dict'][key1][key11]
-    final_dict['base_freq_dict'] = base_freq_dict
-
-    flowcell_tile_qual_dict = dict_result_dicts[primary_keys[0]]['flowcell_tile_qual_dict']
-    for key1 in flowcell_tile_qual_dict.keys():
-        for key11 in flowcell_tile_qual_dict[key1].keys():
-            for keyn in primary_keys[1:]:
-                flowcell_tile_qual_dict[key1][key11] += dict_result_dicts[keyn]['flowcell_tile_qual_dict'][key1][key11]
-    final_dict['flowcell_tile_qual_dict'] = flowcell_tile_qual_dict
+    for dict_name in ['nucleotide_phred_quality_dict', 'base_freq_dict', 'flowcell_tile_qual_dict']:
+        dict = dict_result_dicts[primary_keys[0]][dict_name]
+        for key1 in dict.keys():
+            for key11 in dict[key1].keys():
+                for keyn in primary_keys[1:]:
+                    dict[key1][key11] += dict_result_dicts[keyn][dict_name][key1][key11]
+        final_dict[dict_name] = dict
+    for key, val in final_dict['flowcell_tile_qual_dict'].items():
+        denominator = final_dict['flowcell_seq_count_dict'][key]
+        for k, v in val.items():
+            final_dict['flowcell_tile_qual_dict'][key][k] /= denominator
 
     return final_dict
 
@@ -376,7 +341,7 @@ def mp_fastqc(fq_filepaths):
         p.join()
 
     stop = timeit.default_timer()
-    print(result_dict)
+    #print(result_dict)
     #print(join_laneqc_result_dict(result_dict))
     print('Time consumed in analysis:', stop-start, 'sec')
     return join_laneqc_result_dict(result_dict)
