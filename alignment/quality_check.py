@@ -1,147 +1,15 @@
 __author__ = 'sahu'
 
-import Bio.SeqIO as seqio
+
 import gzip
 import timeit
-import sys
-import numpy as np
-import io
 import collections
 import multiprocessing
-from Bio.SeqUtils import GC
+import matplotlib.pyplot as plt
 
 path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq'
 #zipped_path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq.gz'
 zipped_path = '/home/peeyush/PycharmProjects/pipeline_development/fastq_test_file.fastq.gz'
-
-base_freq_dict = {key: dict.fromkeys(['A', 'T', 'G', 'C', 'N'], 0) for key in range(51)}
-nucleotide_phred_quality_dict = {key: dict.fromkeys([i for i in range(1, 43, 1)], 0) for key in range(51)}
-seq_length_dist = dict.fromkeys(range(1, 101, 1), 0)
-seq_gc_dict = dict.fromkeys(range(0, 101, 1), 0)
-seq_qual_dict = dict.fromkeys(range(1, 43, 1), 0)
-flowcell_seq_count_dict = {}
-flowcell_tile_qual_dict = {}
-
-
-def fastq_iterator(file_obj):
-    """ A very simple generater for reading fastq files"""
-    id = file_obj.readline()
-    seq = file_obj.readline()
-    info = file_obj.readline()
-    phred_qual = file_obj.readline()
-    while id:
-        yield (id, seq, phred_qual)
-        id = file_obj.readline()
-        seq = file_obj.readline()
-        info = file_obj.readline()
-        phred_qual = file_obj.readline()
-
-
-def seq_qual_check(qual_str):
-    """calculates per base and average seq quality"""
-    avg_qual = 0
-    for ind, asci in enumerate(qual_str):
-        qual = ord(asci) - 33
-        nucleotide_phred_quality_dict[ind][qual] += 1
-        avg_qual += qual
-    avg_qual /= len(qual_str)
-    seq_qual_dict[round(avg_qual)] += 1
-
-
-def seq_id_ops(seq_id, qual_str):
-    """Check for sequencing quality per tile"""
-    tile_id = seq_id.split(':')[4]
-    flowcell_seq_count_dict[tile_id] = flowcell_seq_count_dict.get(tile_id, 0) + 1
-    if tile_id not in flowcell_tile_qual_dict.keys():
-        flowcell_tile_qual_dict[tile_id] = dict.fromkeys(range(51), 0)
-    for ind, asci in enumerate(qual_str):
-        qual = ord(asci) - 33
-        flowcell_tile_qual_dict[tile_id][ind] += qual
-
-
-def nucleotide_operations(seq):
-    """calculates frequency of nucleotide at every position"""
-    # calculating base freq
-    max_length = 1000
-    seq_len = len(seq)
-    if seq_len > max_length:
-        raise ('Not a valid fastq file OR sequence ')
-
-    seq_length_dist[len(seq)] += 1
-    for ind, base in enumerate(seq):
-        base_freq_dict[ind][base] += 1
-
-    # calculating % GC in seq
-    letters = collections.Counter(seq)
-    GC = round(((letters['G'] + letters['C']) / 51.0) * 100)
-    seq_gc_dict[GC] += 1
-
-
-start = timeit.default_timer()
-
-i = 0
-# with io.TextIOWrapper(gzip.open(zipped_path, "r"), newline='\n') as handle:
-with gzip.open(zipped_path, "rb") as handle:
-    try:
-        for id, seq, phred_qual in fastq_iterator(handle):
-            id = id.decode('utf-8').strip('\n')
-            seq = seq.decode('utf-8').strip('\n')
-            phred_qual = phred_qual.decode('utf-8').strip('\n')
-            if not len(seq) == len(phred_qual):
-                print(seq, '\n', phred_qual)
-                raise ValueError('Broken fastq file...')
-
-            nucleotide_operations(seq)
-            seq_qual_check(phred_qual)
-            seq_id_ops(id, phred_qual)
-            i += 1
-            # if i == 50000:
-            #    break
-    except Exception as e:
-        print(e)
-        raise ValueError('number of seq:' + str(i))
-    finally:
-        handle.close()
-
-stop = timeit.default_timer()
-
-'''
-## Bio.SeqIO parser for fastq (this thing is atleast 3X slowwer then self written parser)
-with io.TextIOWrapper(gzip.open(zipped_path, "r")) as handle:
-#with open(path, "rU") as handle:
-    for record in seqio.parse(handle, "fastq"):
-    #for record in seqio.parse(path, 'fastq'):
-        """record.id, record.seq, record.letter_annotations["phred_quality"]
-        """
-        id = record.id
-        seq_len = len(record.seq)
-        seq_length_dist[seq_len] += 1
-
-        gc = round(GC(record.seq))
-        seq_gc_dist[gc] += 1  # seq_gc_dist.get(gc, 0) + 1
-
-        seq_qual = round(np.mean(record.letter_annotations["phred_quality"]))
-        seq_qual_dict[seq_qual] += 1  # seq_qual_dict.get(seq_qual, 0) +1
-
-        for ind in range(len(record.seq)):
-            seq_letter = record.seq[ind]
-            base_freq_dict[ind][seq_letter] += 1
-            phred_qual = record.letter_annotations["phred_quality"][ind]
-            nucleotide_phred_quality_dict[ind][phred_qual] += 1
-        i += 1
-        #if i == 5000: break
-'''
-
-print('Total seq analysed:', i)
-print('Time spent in creating the quality control:', (stop - start))
-
-print('seq_qual_dict', seq_qual_dict)
-print('nucleotide_phred_quality_dict', nucleotide_phred_quality_dict)
-print('base_freq_dict', base_freq_dict)
-print('seq_length_dist', seq_length_dist)
-print('seq_gc_dict', seq_gc_dict)
-print('flowcell_tile_qual_dict', flowcell_tile_qual_dict)
-print('flowcell_seq_count_dict', flowcell_seq_count_dict)
 
 '''
 pd.DataFrame(nucleotide_phred_quality_dict, index=range(42, 0, -1)).to_csv('/ps/imt/Pipeline_development/results/AlignedLane/phred_quality_matrix.tsv', sep='\t')
@@ -176,7 +44,8 @@ def fast_qc(zipped_file_path):
     flowcell_seq_count_dict = {}
 
     def fastq_iterator(file_obj):
-        """ A very simple generater for reading fastq files"""
+        """ A very simple generater for reading fastq files,
+        tried Bio.SeqIO was really slow"""
         id = file_obj.readline()
         seq = file_obj.readline()
         info = file_obj.readline()
@@ -256,6 +125,7 @@ def fast_qc(zipped_file_path):
 
 
 def join_laneqc_result_dict(dict_result_dicts):
+    '''Join data from multiple fastQC data file analysis into one dict'''
     final_dict = {}
     primary_keys = list(dict_result_dicts.keys())
     print(primary_keys)
@@ -266,6 +136,7 @@ def join_laneqc_result_dict(dict_result_dicts):
             for keyn in primary_keys[1:]:
                 dict[key1] += dict_result_dicts[keyn][dict_name][key1]
         final_dict[dict_name] = dict
+
     #  joining two-level dict
     for dict_name in ['nucleotide_phred_quality_dict', 'base_freq_dict', 'flowcell_tile_qual_dict']:
         dict = dict_result_dicts[primary_keys[0]][dict_name]
@@ -274,11 +145,11 @@ def join_laneqc_result_dict(dict_result_dicts):
                 for keyn in primary_keys[1:]:
                     dict[key1][key11] += dict_result_dicts[keyn][dict_name][key1][key11]
         final_dict[dict_name] = dict
+
     for key, val in final_dict['flowcell_tile_qual_dict'].items():
         denominator = final_dict['flowcell_seq_count_dict'][key]
         for k, v in val.items():
             final_dict['flowcell_tile_qual_dict'][key][k] /= denominator
-
     return final_dict
 
 
@@ -345,3 +216,19 @@ def mp_fastqc(fq_filepaths):
     #print(join_laneqc_result_dict(result_dict))
     print('Time consumed in analysis:', stop-start, 'sec')
     return join_laneqc_result_dict(result_dict)
+
+
+def plot_qc_data(in_dict):
+    '''Plot data from fastQC analysis'''
+    import scipy.stats as stats
+    import seaborn as sns
+    fig = plt.figure(figsize=[6,6])
+    h = list(in_dict.keys())
+    pdf = stats.norm.pdf(h, 46.1, 9.7)
+    #sns.distplot(pdf, hist=False, rug=True, color="r")
+    #sns.distplot(list(in_dict.values()), hist=True, rug=False, color="g")
+    #plt.bar(list(in_dict.keys()), in_dict.values())
+    plt.plot(list(in_dict.keys()), list(in_dict.values()))
+    plt.tight_layout()
+    plt.savefig('/home/peeyush/PycharmProjects/pipeline_development/plt1.png')
+    plt.close()
