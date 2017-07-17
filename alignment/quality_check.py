@@ -6,10 +6,24 @@ import timeit
 import collections
 import multiprocessing
 import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import matplotlib.patches as mpatches
+import pandas as pd
 
 path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq'
 #zipped_path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq.gz'
 zipped_path = '/home/peeyush/PycharmProjects/pipeline_development/fastq_test_file.fastq.gz'
+
+fastq_files = ['/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_001.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_002.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_003.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_004.fastq.gz']
+
+test_fastq_files = ['/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz',
+                    '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz',
+                    '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz']
+
 
 '''
 pd.DataFrame(nucleotide_phred_quality_dict, index=range(42, 0, -1)).to_csv('/ps/imt/Pipeline_development/results/AlignedLane/phred_quality_matrix.tsv', sep='\t')
@@ -132,18 +146,33 @@ def join_laneqc_result_dict(dict_result_dicts):
     #  Joining single level dict
     for dict_name in ['seq_qual_dict', 'seq_length_dist', 'seq_gc_dict', 'flowcell_seq_count_dict']:
         dict = dict_result_dicts[primary_keys[0]][dict_name]
-        for key1 in dict.keys():
-            for keyn in primary_keys[1:]:
-                dict[key1] += dict_result_dicts[keyn][dict_name][key1]
+        for pkn in primary_keys[1:]:
+            for key in dict_result_dicts[pkn][dict_name].keys():
+                if key in dict.keys():
+                    dict[key] += dict_result_dicts[pkn][dict_name][key]
+                else:
+                    dict[key] = dict_result_dicts[pkn][dict_name][key]
         final_dict[dict_name] = dict
 
     #  joining two-level dict
-    for dict_name in ['nucleotide_phred_quality_dict', 'base_freq_dict', 'flowcell_tile_qual_dict']:
+    for dict_name in ['nucleotide_phred_quality_dict', 'base_freq_dict']:
         dict = dict_result_dicts[primary_keys[0]][dict_name]
         for key1 in dict.keys():
             for key11 in dict[key1].keys():
                 for keyn in primary_keys[1:]:
                     dict[key1][key11] += dict_result_dicts[keyn][dict_name][key1][key11]
+        final_dict[dict_name] = dict
+
+    #  joining two-level dict
+    for dict_name in ['flowcell_tile_qual_dict']:
+        dict = dict_result_dicts[primary_keys[0]][dict_name]
+        for pkn in primary_keys[1:]:
+            for key in dict_result_dicts[pkn][dict_name].keys():
+                if key in dict.keys():  # check if tile id is in first sample
+                    for key1 in dict[key].keys():
+                            dict[key][key1] += dict_result_dicts[pkn][dict_name][key][key1]
+                else:  # if not copy the tile values in dict
+                    dict[key] = dict_result_dicts[pkn][dict_name][key]
         final_dict[dict_name] = dict
 
     for key, val in final_dict['flowcell_tile_qual_dict'].items():
@@ -218,17 +247,133 @@ def mp_fastqc(fq_filepaths):
     return join_laneqc_result_dict(result_dict)
 
 
-def plot_qc_data(in_dict):
-    '''Plot data from fastQC analysis'''
-    import scipy.stats as stats
-    import seaborn as sns
-    fig = plt.figure(figsize=[6,6])
-    h = list(in_dict.keys())
-    pdf = stats.norm.pdf(h, 46.1, 9.7)
-    #sns.distplot(pdf, hist=False, rug=True, color="r")
-    #sns.distplot(list(in_dict.values()), hist=True, rug=False, color="g")
-    #plt.bar(list(in_dict.keys()), in_dict.values())
-    plt.plot(list(in_dict.keys()), list(in_dict.values()))
-    plt.tight_layout()
-    plt.savefig('/home/peeyush/PycharmProjects/pipeline_development/plt1.png')
-    plt.close()
+class DistributionGC:
+    """
+    return a list with genome GC distribution
+    https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2909565/pdf/1001.pdf
+    """
+    def __init__(self, species):
+        self.species = species
+        self.gc_distribution()
+
+    def gc_distribution(self):
+        if self.species == 'Homo_sapiens':
+            return np.random.normal(loc=46.1, scale=9.7, size=1000)
+        elif self.species == 'Mus_musculus':
+            return np.random.normal(loc=51.24, scale=7.80, size=1000)
+
+
+class PlotLaneQCdata:
+
+    def __init__(self, results_dict):
+        self.results_dict = results_dict
+
+    def plot_gc_distribution(self):
+        """Plot GC content per sequence"""
+        from scipy.stats import norm
+        plt.clf()
+        sns.set(style="white", context="talk")
+        bg_dist = DistributionGC('Homo_sapiens')
+        x = bg_dist.gc_distribution()
+        seq_gc = self.results_dict['seq_gc_dict']
+        gc_dist = []
+        for key, val in seq_gc.items():
+            gc_dist.extend([key]*val)
+        sns.distplot(x, fit=norm, kde=False, hist=True, norm_hist=True, label='Theoratical dist')
+        sns.distplot(gc_dist, fit=norm, hist=True, kde=False, color="r", norm_hist=True, label='GC dist per read')
+        plt.xlim(0,100)
+        plt.legend()
+        plt.xlabel('Mean GC content %')
+        plt.ylabel('normalized seq density')
+        plt.savefig('/ps/imt/Pipeline_development/GC_plot.svg')
+        plt.close()
+        del(gc_dist)
+
+    def plot_seqlen_distribution(self):
+        """Plot distribution for sequence length in seq"""
+        seq_length_dist = self.results_dict['seq_length_dist']
+        mk = max(seq_length_dist, key=seq_length_dist.get)
+        x = range(mk-5, mk+6, 1)
+        y = [seq_length_dist[k] for k in x]
+        plt.figure(figsize=(9, 6))
+        plt.plot(x, y)
+        red_patch = mpatches.Patch(label='Sequence length')
+        plt.legend(handles=[red_patch])
+        plt.xlabel('Length of seq')
+        plt.ylabel('Sequence count')
+        plt.tight_layout()
+        plt.savefig('/ps/imt/Pipeline_development/seq_length.svg')
+        plt.close()
+
+    def plot_seq_qual_distibution(self):
+        """Plot sequence quality"""
+        seq_qual = self.results_dict['seq_qual_dict']
+        plt.figure(figsize=(9, 6))
+        plt.plot(list(seq_qual.keys()), list(seq_qual.values()))
+        red_patch = mpatches.Patch(label='Sequence quality')
+        plt.legend(handles=[red_patch], loc='upper left')
+        plt.xlabel('Quality of sequence')
+        plt.ylabel('Sequence count')
+        plt.tight_layout()
+        plt.savefig('/ps/imt/Pipeline_development/seq_quality.svg')
+        plt.close()
+
+    def plot_tile_qual(self):
+        """Plot tile quality per base"""
+        tile_qual = self.results_dict['flowcell_tile_qual_dict']
+        sns.set(style="ticks", context="talk")
+        plt.figure(figsize=[12,8])
+        cmap = sns.blend_palette(('#ee0000', '#ecee00', '#00b61f', '#0004ff', '#0004ff'), n_colors=6, as_cmap=True, input='rgb')
+        ax = sns.heatmap(pd.DataFrame(tile_qual).T, cmap=cmap, vmin=0, vmax=42, xticklabels=range(1, 52, 1))
+        plt.yticks(rotation=0)
+        plt.xlabel('Base position in read')
+        plt.ylabel('Tile ID')
+        plt.title('Quality per tile')
+        plt.tight_layout()
+        plt.savefig('/ps/imt/Pipeline_development/tile_qual.svg')
+
+    def plot_nucleotide_freq(self):
+        """Plot nucleotide frequency across all the reads"""
+        base_freq = self.results_dict['base_freq_dict']
+        base_freq = pd.DataFrame(base_freq)
+        cols = base_freq.columns
+        base_freq[cols] = base_freq[cols].div(base_freq[cols].sum(axis=0), axis=1).multiply(100)
+        sns.set(style="ticks", context="talk")
+        plt.figure(figsize=[10,8])
+        for r, color in zip(list(base_freq.index), ['#ee0000', '#ced000', '#00b61f', '#000000', '#0004ff']):
+            print(r, color)
+            plt.plot(base_freq.loc[r], color=color)
+        plt.ylim(-10, 100)
+        plt.xlabel('Base position in read')
+        plt.ylabel('%')
+        plt.title('Nucleotide frequency across reads')
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig('/ps/imt/Pipeline_development/base_frequency.svg')
+
+    def plot_phred_qual_per_base(self):
+        """Plot qual per base over the sequence for all reads"""
+        base_freq = self.results_dict['nucleotide_phred_quality_dict']
+        base_freq = pd.DataFrame(base_freq)
+        cols = base_freq.columns
+        base_freq[cols] = base_freq[cols].div(base_freq[cols].sum(axis=0), axis=1).multiply(1000)
+        base_freq = base_freq.round()
+        df_list = []
+        for ind, col in base_freq.iteritems():
+            col_list = []
+            #print(ind)
+            for i, val in col.iteritems():
+                #print(i, val)
+                col_list.extend([i] * int(val))
+            df_list.append(col_list)
+        sns.set(style="ticks", context="talk")
+        plt.figure(figsize=[14, 8])
+        plt.boxplot(df_list)
+        plt.ylim(0, 42)
+        plt.xlabel('Base position in read')
+        plt.ylabel('Quality')
+        plt.title('Phred quality score across all bases')
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig('/ps/imt/Pipeline_development/phred_qual_per_base.svg')
+
