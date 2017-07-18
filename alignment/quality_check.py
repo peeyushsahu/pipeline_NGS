@@ -411,3 +411,18 @@ class PlotLaneQCdata:
         plt.tight_layout()
         plt.savefig('/ps/imt/Pipeline_development/phred_qual_per_base.svg')
 
+
+def plot_qc_data(in_dict):
+    '''Plot data from fastQC analysis'''
+    import scipy.stats as stats
+    import seaborn as sns
+    fig = plt.figure(figsize=[6,6])
+    h = list(in_dict.keys())
+    pdf = stats.norm.pdf(h, 46.1, 9.7)
+    #sns.distplot(pdf, hist=False, rug=True, color="r")
+    sns.distplot(list(in_dict.values()), list(in_dict.keys()), kde=False, hist=True, rug=False, color="g")
+    #plt.bar(list(in_dict.keys()), in_dict.values())
+    plt.plot(list(in_dict.keys()), list(in_dict.values()))
+    plt.tight_layout()
+    plt.savefig('/home/peeyush/PycharmProjects/pipeline_development/plt1.png')
+    plt.close()
