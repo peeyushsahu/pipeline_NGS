@@ -76,7 +76,7 @@ class AlignedLane(object):
         self.aligner.align(self, self.lane, self.genome, self.unique_output_filename, self.failed_align_filename)
         return None
 
-    def do_quality_control(self):
+    def do_quality_check(self):
         return
 
 
