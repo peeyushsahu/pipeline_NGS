@@ -14,7 +14,7 @@ import alignment
 
 class Lane(object):
     """Basic lane for unaligned files"""
-    def __init__(self, samplename, input_files, paired=False, trim_5_prime=0, trim_3_prime=0):
+    def __init__(self, samplename, input_files, paired=False, trim_5_prime=0, trim_3_prime=0, seq_length=None):
         self.name = samplename
         self.input_files = self.get_input_filename_aligner(input_files)
         self.is_paired = paired
@@ -22,6 +22,7 @@ class Lane(object):
         self.trim_3_prime = trim_3_prime
         self.base_path = alignment.commons.get_basepath()
         self.result_dir = self.base_path
+        self.seq_length = seq_length
         print(self.base_path)
 
     def get_input_filename_aligner(self, filename_or_directory):
@@ -40,6 +41,10 @@ class Lane(object):
         if not hasattr(genome, 'get_chromosome_length'):
             raise TypeError("Genome needs to be a genome-object e.g. ensembl.EnsemblGenome")
         AlignedLane(self, genome, aligner, name=name)
+
+    def etimate_seq_length(self):
+        """If sequence length is not provided we will estimated our self"""
+        return
 
     def do_quality_control(self):
         return

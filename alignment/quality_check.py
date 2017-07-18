@@ -18,7 +18,16 @@ zipped_path = '/home/peeyush/PycharmProjects/pipeline_development/fastq_test_fil
 fastq_files = ['/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_001.fastq.gz',
                '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_002.fastq.gz',
                '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_003.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_004.fastq.gz']
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_004.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_005.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_006.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_001.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_002.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_003.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_004.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_005.fastq.gz',
+               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_006.fastq.gz',
+               ]
 
 test_fastq_files = ['/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz',
                     '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz',
@@ -211,7 +220,7 @@ def mp_fastqc(fq_filepaths):
 
     #  Counting number of CPUs and taking -1 for multiple process
     no_cpus = int(multiprocessing.cpu_count() - 1)
-    print('Creating %d consumers for multiprocessing' % no_cpus)
+    print('Recruiting %d workers for multiprocessing' % no_cpus)
 
     #  initializing worker
     for ii in range(no_cpus):
@@ -244,7 +253,9 @@ def mp_fastqc(fq_filepaths):
     #print(result_dict)
     #print(join_laneqc_result_dict(result_dict))
     print('Time consumed in analysis:', stop-start, 'sec')
-    return join_laneqc_result_dict(result_dict)
+    joined_results_dict = join_laneqc_result_dict(result_dict)
+    PlotLaneQCdata(joined_results_dict)
+    return joined_results_dict
 
 
 class DistributionGC:
@@ -267,12 +278,19 @@ class PlotLaneQCdata:
 
     def __init__(self, results_dict):
         self.results_dict = results_dict
+        self.plot_gc_distribution()
+        self.plot_nucleotide_freq()
+        self.plot_phred_qual_per_base()
+        self.plot_seq_qual_distibution()
+        self.plot_seqlen_distribution()
+        self.plot_tile_qual()
 
     def plot_gc_distribution(self):
         """Plot GC content per sequence"""
         from scipy.stats import norm
         plt.clf()
         sns.set(style="white", context="talk")
+        plt.figure(figsize=(10, 8))
         bg_dist = DistributionGC('Homo_sapiens')
         x = bg_dist.gc_distribution()
         seq_gc = self.results_dict['seq_gc_dict']
@@ -285,6 +303,7 @@ class PlotLaneQCdata:
         plt.legend()
         plt.xlabel('Mean GC content %')
         plt.ylabel('normalized seq density')
+        plt.title('GC distribution over all sequences')
         plt.savefig('/ps/imt/Pipeline_development/GC_plot.svg')
         plt.close()
         del(gc_dist)
@@ -295,12 +314,13 @@ class PlotLaneQCdata:
         mk = max(seq_length_dist, key=seq_length_dist.get)
         x = range(mk-5, mk+6, 1)
         y = [seq_length_dist[k] for k in x]
-        plt.figure(figsize=(9, 6))
+        plt.figure(figsize=(10, 8))
         plt.plot(x, y)
         red_patch = mpatches.Patch(label='Sequence length')
         plt.legend(handles=[red_patch])
         plt.xlabel('Length of seq')
         plt.ylabel('Sequence count')
+        plt.title('Sequence length distribution over all sequences')
         plt.tight_layout()
         plt.savefig('/ps/imt/Pipeline_development/seq_length.svg')
         plt.close()
@@ -308,12 +328,13 @@ class PlotLaneQCdata:
     def plot_seq_qual_distibution(self):
         """Plot sequence quality"""
         seq_qual = self.results_dict['seq_qual_dict']
-        plt.figure(figsize=(9, 6))
+        plt.figure(figsize=(10, 8))
         plt.plot(list(seq_qual.keys()), list(seq_qual.values()))
         red_patch = mpatches.Patch(label='Sequence quality')
         plt.legend(handles=[red_patch], loc='upper left')
         plt.xlabel('Quality of sequence')
         plt.ylabel('Sequence count')
+        plt.title('Quality score distribution over all sequences')
         plt.tight_layout()
         plt.savefig('/ps/imt/Pipeline_development/seq_quality.svg')
         plt.close()
@@ -322,13 +343,16 @@ class PlotLaneQCdata:
         """Plot tile quality per base"""
         tile_qual = self.results_dict['flowcell_tile_qual_dict']
         sns.set(style="ticks", context="talk")
-        plt.figure(figsize=[12,8])
+        plt.figure(figsize=(12, 8))
         cmap = sns.blend_palette(('#ee0000', '#ecee00', '#00b61f', '#0004ff', '#0004ff'), n_colors=6, as_cmap=True, input='rgb')
         ax = sns.heatmap(pd.DataFrame(tile_qual).T, cmap=cmap, vmin=0, vmax=42, xticklabels=range(1, 52, 1))
+        ax.set_xticks(range(1, 52, 2))
+        ax.set_xticks(range(1, 52, 1), minor=True)
+        ax.set_xticklabels(range(1,52,2))
         plt.yticks(rotation=0)
         plt.xlabel('Base position in read')
         plt.ylabel('Tile ID')
-        plt.title('Quality per tile')
+        plt.title('Average sequence quality per tile')
         plt.tight_layout()
         plt.savefig('/ps/imt/Pipeline_development/tile_qual.svg')
 
@@ -339,14 +363,14 @@ class PlotLaneQCdata:
         cols = base_freq.columns
         base_freq[cols] = base_freq[cols].div(base_freq[cols].sum(axis=0), axis=1).multiply(100)
         sns.set(style="ticks", context="talk")
-        plt.figure(figsize=[10,8])
+        plt.figure(figsize=(10, 8))
         for r, color in zip(list(base_freq.index), ['#ee0000', '#ced000', '#00b61f', '#000000', '#0004ff']):
             print(r, color)
             plt.plot(base_freq.loc[r], color=color)
         plt.ylim(-10, 100)
         plt.xlabel('Base position in read')
         plt.ylabel('%')
-        plt.title('Nucleotide frequency across reads')
+        plt.title('Average nucleotide frequency over all sequences')
         plt.legend()
         plt.tight_layout()
         plt.savefig('/ps/imt/Pipeline_development/base_frequency.svg')
@@ -366,13 +390,23 @@ class PlotLaneQCdata:
                 #print(i, val)
                 col_list.extend([i] * int(val))
             df_list.append(col_list)
+
         sns.set(style="ticks", context="talk")
-        plt.figure(figsize=[14, 8])
-        plt.boxplot(df_list)
+        fig, ax = plt.subplots(1, 1, figsize=[14, 8])
+        bplot = ax.boxplot(df_list, patch_artist=True)
+        for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
+            plt.setp(bplot[item], color='black')
+        ax.set_xticks(range(1, 52, 2))
+        ax.set_xticks(range(1, 52, 1), minor=True)
+        ax.set_xticklabels(range(1, 52, 2))
+        plt.setp(bplot['boxes'], facecolor='#b6b6b6')
+        plt.axhspan(0, 20, facecolor='#fb7572', alpha=0.3)
+        plt.axhspan(20, 28, facecolor='#fdb641', alpha=0.3)
+        plt.axhspan(28, 42, facecolor='#06ba00', alpha=0.3)
         plt.ylim(0, 42)
         plt.xlabel('Base position in read')
         plt.ylabel('Quality')
-        plt.title('Phred quality score across all bases')
+        plt.title('Per base average quality score over all sequences')
         plt.legend()
         plt.tight_layout()
         plt.savefig('/ps/imt/Pipeline_development/phred_qual_per_base.svg')
