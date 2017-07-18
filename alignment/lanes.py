@@ -1,6 +1,5 @@
-from alignment import aligners
-
 __author__ = 'peeyush'
+
 # Standard library imports
 import subprocess as sp
 import os
@@ -21,6 +20,8 @@ class Lane(object):
         self.trim_5_prime = trim_5_prime
         self.trim_3_prime = trim_3_prime
         self.base_path = alignment.commons.get_basepath()
+        self.result_dir = os.path.join(self.base_path, 'results', 'Lane', self.name)
+        self.cache_dir = os.path.join(self.base_path, 'cache', 'Lane', self.name)
         self.result_dir = self.base_path
         self.seq_length = seq_length
         print(self.base_path)
@@ -46,7 +47,9 @@ class Lane(object):
         """If sequence length is not provided we will estimated our self"""
         return
 
-    def do_quality_control(self):
+    def do_quality_check(self):
+        """Compute quality stats for Lane"""
+        alignment.quality_check.do_fastqc(self.input_files, self.result_dir)
         return
 
 
