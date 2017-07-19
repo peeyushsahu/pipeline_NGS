@@ -13,7 +13,7 @@ import alignment
 
 class Lane(object):
     """Basic lane for unaligned files"""
-    def __init__(self, samplename, input_files, paired=False, trim_5_prime=0, trim_3_prime=0, seq_length=None):
+    def __init__(self, samplename, input_files, paired=False, trim_5_prime=0, trim_3_prime=0):
         self.name = samplename
         self.input_files = self.get_input_filename_aligner(input_files)
         self.is_paired = paired
@@ -22,9 +22,8 @@ class Lane(object):
         self.base_path = alignment.commons.get_basepath()
         self.result_dir = os.path.join(self.base_path, 'results', 'Lane', self.name)
         self.cache_dir = os.path.join(self.base_path, 'cache', 'Lane', self.name)
-        self.result_dir = self.base_path
-        self.seq_length = seq_length
-        print(self.base_path)
+        self.seq_length = self.etimate_seq_length()
+        print('Results will be stored in:', self.base_path)
 
     def get_input_filename_aligner(self, filename_or_directory):
         """This will check if the given path is a filename, else iterate over all files in dir"""
@@ -45,12 +44,14 @@ class Lane(object):
 
     def etimate_seq_length(self):
         """If sequence length is not provided we will estimated our self"""
-        return
+        return alignment.fileformat.estimate_fastq_seq_length(self.input_files)
 
     def do_quality_check(self):
         """Compute quality stats for Lane"""
-        alignment.quality_check.do_fastqc(self.input_files, self.result_dir)
-        return
+        #print(self.result_dir)
+        alignment.commons.ensure_path(self.result_dir)
+        alignment.commons.ensure_path(self.cache_dir)
+        alignment.quality_check.do_fastqc(self.input_files, self.result_dir, self.seq_length)
 
 
 class AlignedLane(object):

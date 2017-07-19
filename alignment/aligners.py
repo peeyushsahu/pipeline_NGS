@@ -1,10 +1,10 @@
 __author__ = 'peeyush'
 
 # Standard library imports
-import subprocess as sp
 import os
 import sys
 import subprocess
+import multiprocessing
 # third party imports
 import pysam
 # local imports
@@ -24,7 +24,7 @@ class Bowtie2(object):
         """
         self.name = 'bowtie2'
         self.short_name = 'bt2'
-        self.threads = 6
+        self.threads = int(multiprocessing.cpu_count() - 1)
         if parameters is None:
             parameters = []
         if '-q' not in parameters:
@@ -109,22 +109,21 @@ class Bowtie2(object):
             """Now one more conversion bam --> tdf for igv (these tracks are light)"""
             stdout, stderr = common.bam_2_tdf(tools_folder, uniquely_aligned_output_file, window_size=5)
             try:
-                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stderr'), 'wb')
+                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stderr'), 'wt')
                 file.write(stderr)
                 file.close()
-                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stdout'), 'wb')
+                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stdout'), 'wt')
                 file.write(stderr)
                 file.close()
             except Exception as e:
-                print('Error:',e)
+                print('Error:', e)
                 pass
-        #align_to_sam()
-        #sam_2_bam()
+        align_to_sam()
+        sam_2_bam()
         bam_2_tdf()
         if os.path.exists(temp_outputfile):
             print('Removing sam file')
             os.remove(temp_outputfile)
-        return None
 
     def call_bowtie2(self, parameter):
         """Calls real bowtie2"""

@@ -38,7 +38,7 @@ test_fastq_files = ['/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/tes
                     '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz']
 
 
-def do_fastqc(fq_filepaths, outpath):
+def do_fastqc(fq_filepaths, outpath, seq_length):
 
     def worker(args, job_queq, reqult_queq):
 
@@ -52,7 +52,7 @@ def do_fastqc(fq_filepaths, outpath):
             out_dict = {}
             print('Worker-%d started the job' % args)
             try:
-                out_dict[sample_name] = fast_qc(fq_path)
+                out_dict[sample_name] = fast_qc(fq_path, seq_length)
                 reqult_queq.put(out_dict)
             except Exception as e:
                 reqult_queq.put({'error': sample_name})
@@ -102,14 +102,14 @@ def do_fastqc(fq_filepaths, outpath):
     print('Time consumed in analysis:', stop-start, 'sec')
     joined_results_dict = join_laneqc_result_dict(result_dict)
     write_lane_qc_results(joined_results_dict, outpath=outpath)
-    PlotLaneQCdata(joined_results_dict, outpath=outpath)
+    PlotLaneQCdata(joined_results_dict, outpath=outpath, seq_length=seq_length)
     return joined_results_dict
 
 
-def fast_qc(zipped_file_path):
-    base_freq_dict = {key: dict.fromkeys(['A', 'T', 'G', 'C', 'N'], 0) for key in range(51)}
-    nucleotide_phred_quality_dict = {key: dict.fromkeys([i for i in range(1, 43, 1)], 0) for key in range(51)}
-    seq_length_dist = dict.fromkeys(range(1, 101, 1), 0)
+def fast_qc(zipped_file_path, seq_length):
+    base_freq_dict = {key: dict.fromkeys(['A', 'T', 'G', 'C', 'N'], 0) for key in range(seq_length)}
+    nucleotide_phred_quality_dict = {key: dict.fromkeys([i for i in range(1, 43, 1)], 0) for key in range(seq_length)}
+    seq_length_dict = dict.fromkeys(range(1, 101, 1), 0)
     seq_gc_dict = dict.fromkeys(range(0, 101, 1), 0)
     seq_qual_dict = dict.fromkeys(range(1, 43, 1), 0)
     flowcell_tile_qual_dict = {}
@@ -144,7 +144,7 @@ def fast_qc(zipped_file_path):
         tile_id = seq_id.split(':')[4]
         flowcell_seq_count_dict[tile_id] = flowcell_seq_count_dict.get(tile_id, 0) + 1
         if tile_id not in flowcell_tile_qual_dict.keys():
-            flowcell_tile_qual_dict[tile_id] = dict.fromkeys(range(51), 0)
+            flowcell_tile_qual_dict[tile_id] = dict.fromkeys(range(seq_length), 0)
         for ind, asci in enumerate(qual_str):
             qual = ord(asci) - 33
             flowcell_tile_qual_dict[tile_id][ind] += qual
@@ -155,12 +155,12 @@ def fast_qc(zipped_file_path):
         seq_len = len(seq)
         if seq_len > max_length:
             raise ValueError('Not a valid fastq file OR sequence seq length > max_length' + str(max_length))
-        seq_length_dist[len(seq)] += 1
+        seq_length_dict[len(seq)] += 1
         for ind, base in enumerate(seq):
             base_freq_dict[ind][base] += 1
         # calculating % GC in seq
         letters = collections.Counter(seq)
-        GC = round(((letters['G'] + letters['C']) / 51.0) * 100)
+        GC = round(((letters['G'] + letters['C']) / seq_length) * 100)
         seq_gc_dict[GC] += 1
 
     with gzip.open(zipped_file_path, "rb") as handle:
@@ -189,7 +189,7 @@ def fast_qc(zipped_file_path):
     return {'seq_qual_dict': seq_qual_dict,
             'nucleotide_phred_quality_dict': nucleotide_phred_quality_dict,
             'base_freq_dict': base_freq_dict,
-            'seq_length_dist': seq_length_dist,
+            'seq_length_dict': seq_length_dict,
             'seq_gc_dict': seq_gc_dict,
             'flowcell_tile_qual_dict': flowcell_tile_qual_dict,
             'flowcell_seq_count_dict': flowcell_seq_count_dict
@@ -202,7 +202,7 @@ def join_laneqc_result_dict(dict_result_dicts):
     primary_keys = list(dict_result_dicts.keys())
     print(primary_keys)
     #  Joining single level dict
-    for dict_name in ['seq_qual_dict', 'seq_length_dist', 'seq_gc_dict', 'flowcell_seq_count_dict']:
+    for dict_name in ['seq_qual_dict', 'seq_length_dict', 'seq_gc_dict', 'flowcell_seq_count_dict']:
         dict = dict_result_dicts[primary_keys[0]][dict_name]
         for pkn in primary_keys[1:]:
             for key in dict_result_dicts[pkn][dict_name].keys():
@@ -258,9 +258,10 @@ class DistributionGC:
 
 class PlotLaneQCdata:
     """Plots all the computed statistics"""
-    def __init__(self, results_dict, outpath):
+    def __init__(self, results_dict, outpath, seq_length):
         self.results_dict = results_dict
         self.outpath = outpath
+        self.seq_length = seq_length
         self.plot_gc_distribution()
         self.plot_nucleotide_freq()
         self.plot_phred_qual_per_base()
@@ -282,7 +283,7 @@ class PlotLaneQCdata:
             gc_dist.extend([key]*val)
         sns.distplot(x, fit=norm, kde=False, hist=True, norm_hist=True, label='Theoratical dist')
         sns.distplot(gc_dist, fit=norm, hist=True, kde=False, color="r", norm_hist=True, label='GC dist per read')
-        plt.xlim(0,100)
+        plt.xlim(0, 100)
         plt.legend()
         plt.xlabel('Mean GC content %')
         plt.ylabel('normalized seq density')
@@ -293,7 +294,7 @@ class PlotLaneQCdata:
 
     def plot_seqlen_distribution(self):
         """Plot distribution for sequence length in seq"""
-        seq_length_dist = self.results_dict['seq_length_dist']
+        seq_length_dist = self.results_dict['seq_length_dict']
         mk = max(seq_length_dist, key=seq_length_dist.get)
         x = range(mk-5, mk+6, 1)
         y = [seq_length_dist[k] for k in x]
@@ -324,14 +325,15 @@ class PlotLaneQCdata:
 
     def plot_tile_qual(self):
         """Plot tile quality per base"""
+        max_xaxis = self.seq_length + 1
         tile_qual = self.results_dict['flowcell_tile_qual_dict']
         sns.set(style="ticks", context="talk")
         plt.figure(figsize=(12, 8))
         cmap = sns.blend_palette(('#ee0000', '#ecee00', '#00b61f', '#0004ff', '#0004ff'), n_colors=6, as_cmap=True, input='rgb')
-        ax = sns.heatmap(pd.DataFrame(tile_qual).T, cmap=cmap, vmin=0, vmax=42, xticklabels=range(1, 52, 1))
-        ax.set_xticks(range(1, 52, 2))
-        ax.set_xticks(range(1, 52, 1), minor=True)
-        ax.set_xticklabels(range(1,52,2))
+        ax = sns.heatmap(pd.DataFrame(tile_qual).T, cmap=cmap, vmin=0, vmax=42, xticklabels=range(1, max_xaxis, 1))
+        ax.set_xticks(range(1, max_xaxis, 2))
+        ax.set_xticks(range(1, max_xaxis, 1), minor=True)
+        ax.set_xticklabels(range(1, max_xaxis, 2))
         plt.yticks(rotation=0)
         plt.xlabel('Base position in read')
         plt.ylabel('Tile ID')
@@ -359,6 +361,7 @@ class PlotLaneQCdata:
 
     def plot_phred_qual_per_base(self):
         """Plot qual per base over the sequence for all reads"""
+        max_xaxis = self.seq_length + 1
         base_freq = self.results_dict['nucleotide_phred_quality_dict']
         base_freq = pd.DataFrame(base_freq)
         cols = base_freq.columns
@@ -378,9 +381,9 @@ class PlotLaneQCdata:
         bplot = ax.boxplot(df_list, patch_artist=True)
         for item in ['boxes', 'whiskers', 'fliers', 'medians', 'caps']:
             plt.setp(bplot[item], color='black')
-        ax.set_xticks(range(1, 52, 2))
-        ax.set_xticks(range(1, 52, 1), minor=True)
-        ax.set_xticklabels(range(1, 52, 2))
+        ax.set_xticks(range(1, max_xaxis, 2))
+        ax.set_xticks(range(1, max_xaxis, 1), minor=True)
+        ax.set_xticklabels(range(1, max_xaxis, 2))
         plt.setp(bplot['boxes'], facecolor='#b6b6b6')
         plt.axhspan(0, 20, facecolor='#fb7572', alpha=0.3)
         plt.axhspan(20, 28, facecolor='#fdb641', alpha=0.3)
@@ -392,6 +395,7 @@ class PlotLaneQCdata:
         plt.legend()
         plt.tight_layout()
         plt.savefig(os.path.join(self.outpath, 'phred_qual_plot.svg'))
+        del df_list
 
 
 def write_lane_qc_results(QC_result_dict, outpath):
@@ -399,15 +403,15 @@ def write_lane_qc_results(QC_result_dict, outpath):
     pd.DataFrame(QC_result_dict['nucleotide_phred_quality_dict'], index=range(42, 0, -1)).to_csv(os.path.join(outpath, 'phred_qual_matrix.txt'), sep='\t')
     pd.DataFrame(QC_result_dict['base_freq_dict'], index=['A', 'T', 'G', 'C', 'N']).to_csv(os.path.join(outpath, 'base_freq_matrix.txt'), sep='\t')
     pd.DataFrame(QC_result_dict['flowcell_tile_qual_dict']).to_csv(os.path.join(outpath, 'flowcell_tile_qual_matrix.txt'), sep='\t')
-    with open(os.path.join(outpath, 'seq_length_dist.txt'), 'wt') as file:
+    with open(os.path.join(outpath, 'seq_length_dict.txt'), 'wt') as file:
         file.write('length\tcount\n')
-        for key in QC_result_dict['seq_length_dist'].keys():
-            file.write(str(key)+'\t'+str(QC_result_dict['seq_length_dist'][key])+'\n')
+        for key in QC_result_dict['seq_length_dict'].keys():
+            file.write(str(key)+'\t'+str(QC_result_dict['seq_length_dict'][key])+'\n')
     file.close()
-    with open(os.path.join(outpath, 'seq_gc_dist.txt'), 'wt') as file:
+    with open(os.path.join(outpath, 'seq_gc_dict.txt'), 'wt') as file:
         file.write('GC_percent\tseq_count\n')
-        for key in QC_result_dict['seq_gc_dist'].keys():
-            file.write(str(key)+'\t'+str(QC_result_dict['seq_gc_dist'][key])+'\n')
+        for key in QC_result_dict['seq_gc_dict'].keys():
+            file.write(str(key)+'\t'+str(QC_result_dict['seq_gc_dict'][key])+'\n')
     file.close()
     with open(os.path.join(outpath, 'seq_qual_dict.txt'), 'wt') as file:
         file.write('avg_seq_qual\tseq_count\n')
