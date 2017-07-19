@@ -51,7 +51,10 @@ class Lane(object):
         #print(self.result_dir)
         alignment.commons.ensure_path(self.result_dir)
         alignment.commons.ensure_path(self.cache_dir)
-        alignment.quality_check.do_fastqc(self.input_files, self.result_dir, self.seq_length)
+        if not self.is_paired:
+            alignment.quality_check.do_fastqc(self.input_files, self.result_dir, self.seq_length)
+        else:
+            print('fastq quality check for PE seq not availble')
 
 
 class AlignedLane(object):
@@ -113,7 +116,7 @@ class AlignedLaneDedup(object):
                         repeat_count = read.opt('XC')
                     except KeyError: #no XC
                         repeat_count = 1
-                    for ii in range(0,repeat_count):
+                    for ii in range(0, repeat_count):
                         forward_reads.add(read)
                 else:
                     dup_dict['+'+str(len(forward_reads))] = dup_dict.get('+'+str(len(forward_reads)), 0) + 1
