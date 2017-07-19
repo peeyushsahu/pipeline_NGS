@@ -40,7 +40,7 @@ class Lane(object):
         """Returns AlignedLane object for sent Lane"""
         if not hasattr(genome, 'get_chromosome_length'):
             raise TypeError("Genome needs to be a genome-object e.g. ensembl.EnsemblGenome")
-        AlignedLane(self, genome, aligner, name=name)
+        return AlignedLane(self, genome, aligner, name=name)
 
     def etimate_seq_length(self):
         """If sequence length is not provided we will estimated our self"""
@@ -69,9 +69,9 @@ class AlignedLane(object):
         self.cache_dir = os.path.join(lane.base_path, 'cache', 'AlignedLane', self.name)
         self.unique_output_filename = os.path.join(self.result_dir, 'aligned_unique_%s.bam' % self.name)
         self.failed_align_filename = os.path.join(self.result_dir, 'aligned_fail_%s.fastq.gz' % self.name)
-        self.align()
+        self.align_data()
 
-    def align(self):
+    def align_data(self):
         alignment.commons.ensure_path(self.result_dir)
         alignment.commons.ensure_path(self.cache_dir)
         self.aligner.align(self, self.lane, self.genome, self.unique_output_filename, self.failed_align_filename)
