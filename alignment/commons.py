@@ -21,41 +21,48 @@ def ensure_path(path):
     return path
 
 
-def sam_2_bam(tools_path, sam_path, bam_path):
+class sam_2_bam():
     """Converting sam to bam using samtools"""
-    name = 'samtools-1.5'
-    samtool = os.path.join(tools_path, name, 'samtools')
-    cmd = [samtool, 'view', '-b', sam_path, '-o', bam_path]
-    print('#################### Sam to Bam conversion ###################')
-    #print(cmd)
-    try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = proc.communicate()
-        print(stderr, stdout)
-    except Exception as e:
-        raise IOError("Error in samttols bam conversion:", e)
+    def __init__(self, tools_path, sam_path, bam_path):
+        self.name = 'samtools-1.5'
+        self.samtool = os.path.join(tools_path, self.name, 'samtools')
+        self.sam_path = sam_path
+        self.bam_path = bam_path
 
-    # sorting bam
-    cmd1 = [samtool, 'sort', '-l 9', '-o', bam_path, bam_path]
-    print('#################### Bam sorting ###################')
-    #print(cmd1)
-    try:
-        proc = subprocess.Popen(cmd1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = proc.communicate()
-        print(stderr, stdout)
-    except Exception as e:
-        raise IOError("Error in samttols bam sorting:", e)
+    def sam2bam(self):
+        cmd = [self.samtool, 'view', '-b', self.sam_path, '-o', self.bam_path]
+        print('#################### Sam to Bam conversion ###################')
+        #print(cmd)
+        try:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = proc.communicate()
+            print(stderr, stdout)
+        except Exception as e:
+            raise IOError("Error in samttols bam conversion:", e)
 
-    # indexing bam
-    cmd2 = [samtool, 'index', '-b', bam_path]
-    print('#################### Bam indexing ###################')
-    #print(cmd2)
-    try:
-        proc = subprocess.Popen(cmd2, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = proc.communicate()
-        print(stderr, stdout)
-    except Exception as e:
-        raise IOError("Error in samttols bam indexing:", e)
+    def sorting_bam(self):
+        # sorting bam
+        cmd1 = [self.samtool, 'sort', '-l 9', '-o', self.bam_path, self.bam_path]
+        print('#################### Bam sorting ###################')
+        #print(cmd1)
+        try:
+            proc = subprocess.Popen(cmd1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = proc.communicate()
+            print(stderr, stdout)
+        except Exception as e:
+            raise IOError("Error in samttols bam sorting:", e)
+
+    def indexing_bam(self):
+        # indexing bam
+        cmd2 = [self.samtool, 'index', '-b', self.bam_path]
+        print('#################### Bam indexing ###################')
+        #print(cmd2)
+        try:
+            proc = subprocess.Popen(cmd2, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = proc.communicate()
+            print(stderr, stdout)
+        except Exception as e:
+            raise IOError("Error in samttols bam indexing:", e)
 
 
 def to_bed(peaks):

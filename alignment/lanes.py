@@ -55,7 +55,7 @@ class Lane(object):
 
 
 class AlignedLane(object):
-    """Lane containing aligned information"""
+    """Lane containing sample alignment information"""
     def __init__(self, lane, genome, aligner, name=None):
         self.lane = lane
         self.aligner = aligner
@@ -82,22 +82,20 @@ class AlignedLane(object):
 
 
 class AlignedLaneDedup(object):
-    def __init__(self, Lane):
-        self.name = Lane.name
-        self.genome = Lane.genome
-        self.bampath = Lane.bampath
-        self.deduppath = None
-        self.resultdir = Lane.resultdir
-        self.peakdata = None
+    """Lane containing information for aligned lane de-duplication"""
+    def __init__(self, alignedlane):
+        self.name = alignedlane.AlignedLane.name
+        self.result_dir = alignedlane.result_dir+'_dedup'
+        self.cache_dir = alignedlane.cache_dir
+        self.dedup_filename = os.path.join(self.result_dir, 'aligned_unique_%s_dedup.bam' % self.name)
+        self.bam_path = alignedlane.unique_output_filename
 
     def do_dedup(self, maximum_stacks=None, maximum_stacks_allowed=2):
         """
         To remove PCR duplicates from bam files.
         """
-        deduppath = os.path.join(self.resultdir, 'alignedLane', self.name + '_dedup', self.name + '_dedup')
-        alignment.commons.ensure_path(deduppath)
-        self.deduppath = os.path.join(deduppath + '_' + self.genome.name)
-        bamfile = pysam.Samfile(self.bampath, "rb")
+        alignment.commons.ensure_path(self.result_dir)
+        bamfile = pysam.Samfile(self.bam_path, "rb")
         genome = self.genome
         dup_dict = {}
         last_forward_position = -1

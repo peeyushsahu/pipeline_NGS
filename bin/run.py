@@ -18,9 +18,12 @@ raw_lanes = [
 ]
 print(raw_lanes[0].input_files)
 
+aligned_lane = []
 for lane in raw_lanes:
     lane.do_quality_check()
-    #lane.align(genome, aligner)
+    aligned_lane[lane.name] = lane.align(genome, aligner)
+
+
 
 '''
 # Aliging read files with chosen aligner
