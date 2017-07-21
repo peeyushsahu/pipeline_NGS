@@ -29,6 +29,12 @@ class sam_2_bam():
         self.sam_path = sam_path
         self.bam_path = bam_path
 
+    def run(self):
+        """Run method"""
+        self.sam2bam()
+        self.sorting_bam()
+        self.indexing_bam()
+
     def sam2bam(self):
         cmd = [self.samtool, 'view', '-b', self.sam_path, '-o', self.bam_path]
         print('#################### Sam to Bam conversion ###################')

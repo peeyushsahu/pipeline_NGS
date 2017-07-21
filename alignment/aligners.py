@@ -103,7 +103,7 @@ class Bowtie2(object):
 
         def sam_2_bam():
             """Now we will convert bowtie sam output to bam and sort and index it"""
-            common.sam_2_bam(tools_folder, temp_outputfile, uniquely_aligned_output_file)
+            common.sam_2_bam(tools_folder, temp_outputfile, uniquely_aligned_output_file).run()
 
         def bam_2_tdf():
             """Now one more conversion bam --> tdf for igv (these tracks are light)"""

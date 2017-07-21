@@ -12,18 +12,19 @@ aligner = alignment.aligners.Bowtie2()
 aligner.get_version()
 
 raw_lanes = [
-    alignment.lanes.Lane('NT2D1_K27_test_file', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/Sample_41_K27ac_WT10_ChIP25_110915'),
+    alignment.lanes.Lane('NT2D1_test_file', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/Sample_41_K27ac_WT10_ChIP25_110915'),
     #alignment.lanes.Lane('NT2D1_E9_2', '/home/peeyush/PycharmProjects/pipeline_development/fastqFiles'),
     #alignment.lanes.Lane('NT2D1_E9_3', '/ps/imt/f/20151127_RNA/Sample_E_9_C3_250915_R9'),
 ]
 print(raw_lanes[0].input_files)
 
-aligned_lane = []
+aligned_lane = {}
 for lane in raw_lanes:
     lane.do_quality_check()
     aligned_lane[lane.name] = lane.align(genome, aligner)
 
-
+for name, a_lane in aligned_lane.items():
+    alignment.lanes.AlignedLaneDedup(name, a_lane).do_dedup()
 
 '''
 # Aliging read files with chosen aligner

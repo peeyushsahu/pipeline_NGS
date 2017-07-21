@@ -198,12 +198,13 @@ def fast_qc(zipped_file_path, seq_length):
 
 def join_laneqc_result_dict(dict_result_dicts):
     '''Join data from multiple fastQC data file analysis into one dict'''
+    from copy import deepcopy
     final_dict = {}
     primary_keys = list(dict_result_dicts.keys())
     print(primary_keys)
     #  Joining single level dict
     for dict_name in ['seq_qual_dict', 'seq_length_dict', 'seq_gc_dict', 'flowcell_seq_count_dict']:
-        dict = dict_result_dicts[primary_keys[0]][dict_name]
+        dict = deepcopy(dict_result_dicts[primary_keys[0]][dict_name])  # Using deep copy
         for pkn in primary_keys[1:]:
             for key in dict_result_dicts[pkn][dict_name].keys():
                 if key in dict.keys():
@@ -214,7 +215,7 @@ def join_laneqc_result_dict(dict_result_dicts):
 
     #  joining two-level dict
     for dict_name in ['nucleotide_phred_quality_dict', 'base_freq_dict']:
-        dict = dict_result_dicts[primary_keys[0]][dict_name]
+        dict = deepcopy(dict_result_dicts[primary_keys[0]][dict_name])
         for key1 in dict.keys():
             for key11 in dict[key1].keys():
                 for keyn in primary_keys[1:]:
@@ -223,7 +224,7 @@ def join_laneqc_result_dict(dict_result_dicts):
 
     #  joining two-level dict
     for dict_name in ['flowcell_tile_qual_dict']:
-        dict = dict_result_dicts[primary_keys[0]][dict_name]
+        dict = deepcopy(dict_result_dicts[primary_keys[0]][dict_name])
         for pkn in primary_keys[1:]:
             for key in dict_result_dicts[pkn][dict_name].keys():
                 if key in dict.keys():  # check if tile id is in first sample
