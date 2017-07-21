@@ -72,7 +72,7 @@ class AlignedLane(object):
                 self.name = name
         self.result_dir = os.path.join(lane.base_path, 'results', 'AlignedLane', self.name)
         self.cache_dir = os.path.join(lane.base_path, 'cache', 'AlignedLane', self.name)
-        self.unique_output_filename = os.path.join(self.result_dir, 'aligned_unique_%s.bam' % self.name)
+        self.unique_output_filename = os.path.join(self.result_dir, 'unique_%s.bam' % self.name)
         self.failed_align_filename = os.path.join(self.result_dir, 'aligned_fail_%s.fastq.gz' % self.name)
         self.align_data()
 
@@ -92,7 +92,7 @@ class AlignedLaneDedup(object):
         self.name = name
         self.result_dir = alignedlane.result_dir+'_dedup'
         self.cache_dir = alignedlane.cache_dir
-        self.dedup_filename = os.path.join(self.result_dir, 'aligned_unique_%s_dedup.bam' % self.name)
+        self.dedup_filename = os.path.join(self.result_dir, 'unique_%s_dedup.bam' % self.name)
         self.bam_path = alignedlane.unique_output_filename
 
     def do_dedup(self, maximum_stacks=None, maximum_stacks_allowed=2):
@@ -111,12 +111,7 @@ class AlignedLaneDedup(object):
         for read in bamfile.fetch():
             if not read.is_reverse:
                 if read.pos == last_forward_position:
-                    try:
-                        repeat_count = read.opt('XC')
-                    except KeyError: #no XC
-                        repeat_count = 1
-                    for ii in range(0, repeat_count):
-                        forward_reads.add(read)
+                    forward_reads.add(read)
                 else:
                     dup_dict[str(len(forward_reads))] = dup_dict.get(str(len(forward_reads)), 0) + 1
                     if maximum_stacks is None or len(forward_reads) < maximum_stacks:
@@ -133,12 +128,7 @@ class AlignedLaneDedup(object):
             else:
                 readpos = read.pos + read.qlen
                 if readpos == last_reverse_position:
-                    try:
-                        repeat_count = read.opt('XC')
-                    except KeyError: #no XC
-                        repeat_count = 1
-                    for ii in range(0, repeat_count):
-                        reverse_reads.add(read)
+                    reverse_reads.add(read)
                 else:
                     dup_dict[str(len(reverse_reads))] = dup_dict.get(str(len(reverse_reads)), 0) + 1
                     if maximum_stacks is None or len(reverse_reads) < maximum_stacks:

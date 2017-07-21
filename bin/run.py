@@ -23,8 +23,10 @@ for lane in raw_lanes:
     lane.do_quality_check()
     aligned_lane[lane.name] = lane.align(genome, aligner)
 
+max_stack = 7
 for name, a_lane in aligned_lane.items():
-    alignment.lanes.AlignedLaneDedup(name, a_lane).do_dedup()
+    dedup_lane = alignment.lanes.AlignedLaneDedup(name, a_lane)
+    dedup_lane.do_dedup(maximum_stacks=7)
 
 '''
 # Aliging read files with chosen aligner
