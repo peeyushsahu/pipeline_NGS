@@ -11,32 +11,6 @@ import seaborn as sns
 import matplotlib.patches as mpatches
 import pandas as pd
 
-path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq'
-
-zipped_path = '/home/peeyush/PycharmProjects/pipeline_development/fastq_test_file.fastq.gz'
-fastq_paths = ['/home/peeyush/PycharmProjects/pipeline_development/fastq_test_file.fastq.gz',
-               '/home/peeyush/PycharmProjects/pipeline_development/fastq1_test_file.fastq.gz']
-
-
-#zipped_path = '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/40_K4me3_WT10_ChIP25_110915_TGACCA_L001_R1_003.fastq.gz'
-fastq_files = ['/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_001.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_002.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_003.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_004.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_005.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L001_R1_006.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_001.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_002.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_003.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_004.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_005.fastq.gz',
-               '/ps/imt/f/20151112/Sample_6_B6.2_K27ac_ChIP23_071115/6_B6.2b_ChIP23_071115_CAGATC_L002_R1_006.fastq.gz',
-               ]
-
-test_fastq_files = ['/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz',
-                    '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz',
-                    '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/test_seq_data.fastq.gz']
-
 
 def do_fastqc(fq_filepaths, outpath, seq_length):
 

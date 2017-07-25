@@ -108,12 +108,15 @@ class Bowtie2(object):
         def bam_2_tdf():
             """Now one more conversion bam --> tdf for igv (these tracks are light)"""
             stdout, stderr = common.bam_2_tdf(tools_folder, uniquely_aligned_output_file, window_size=5)
+            print('here')
+            print(stdout)
+            print(stderr)
             try:
                 file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stderr'), 'wt')
-                file.write(stderr)
+                file.write(stderr.decode(encoding='utf-8').split(sep='\n'))
                 file.close()
                 file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stdout'), 'wt')
-                file.write(stderr)
+                file.write(stdout.decode(encoding='utf-8').split(sep='\n'))
                 file.close()
             except Exception as e:
                 print('Error:', e)

@@ -12,8 +12,8 @@ aligner = alignment.aligners.Bowtie2()
 aligner.get_version()
 
 raw_lanes = [
-    alignment.lanes.Lane('NT2D1_test_file', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/Sample_41_K27ac_WT10_ChIP25_110915'),
-    #alignment.lanes.Lane('NT2D1_E9_2', '/home/peeyush/PycharmProjects/pipeline_development/fastqFiles'),
+    #alignment.lanes.Lane('NT2D1_test_file', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/Sample_41_K27ac_WT10_ChIP25_110915'),
+    alignment.lanes.Lane('NT2D1_K4me3', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/Sample_40_K4me3_WT10_ChIP25_110915'),
     #alignment.lanes.Lane('NT2D1_E9_3', '/ps/imt/f/20151127_RNA/Sample_E_9_C3_250915_R9'),
 ]
 print(raw_lanes[0].input_files)

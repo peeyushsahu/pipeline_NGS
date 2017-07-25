@@ -159,12 +159,16 @@ class AlignedLaneDedup(object):
         else:
             reverse_reads = random.sample(reverse_reads, 1)
             dedup_bam.write(reverse_reads.pop())
+        print('Aligned read in original bam:', bamfile.mapped)
         dedup_bam.close()
         bamfile.close()
-        # Sorting and indexing dedup alignment file
+        # Sorting and Indexing dedup alignment file
         SI_bam = alignment.commons.sam_2_bam(tools_folder, None, self.dedup_filename)
         SI_bam.sorting_bam()
         SI_bam.indexing_bam()
+        dedup_bam = pysam.AlignmentFile(self.dedup_filename, "rb")
+        print('Aligned read in dedupped bam:', dedup_bam.mapped)
+        dedup_bam.close()
         print(dup_dict)
         return dup_dict
 
