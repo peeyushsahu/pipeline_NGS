@@ -113,10 +113,13 @@ class Bowtie2(object):
             print(stderr)
             try:
                 file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stderr'), 'wt')
-                file.write(stderr.decode(encoding='utf-8').split(sep='\n'))
+                for line in stderr.decode(encoding='utf-8').split('\n'):
+                    file.write(line)
                 file.close()
+
                 file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stdout'), 'wt')
-                file.write(stdout.decode(encoding='utf-8').split(sep='\n'))
+                for line in stdout.decode(encoding='utf-8').split('\n'):
+                    file.write(line)
                 file.close()
             except Exception as e:
                 print('Error:', e)

@@ -113,7 +113,7 @@ class AlignedLaneDedup(object):
                 if read.pos == last_forward_position:
                     forward_reads.add(read)
                 else:
-                    dup_dict[str(len(forward_reads))] = dup_dict.get(str(len(forward_reads)), 0) + 1
+                    dup_dict[len(forward_reads)] = dup_dict.get(len(forward_reads), 0) + 1
                     if maximum_stacks is None or len(forward_reads) < maximum_stacks:
                         if len(forward_reads) >= maximum_stacks_allowed:
                             forward_reads = random.sample(forward_reads, 2)
@@ -130,7 +130,7 @@ class AlignedLaneDedup(object):
                 if readpos == last_reverse_position:
                     reverse_reads.add(read)
                 else:
-                    dup_dict[str(len(reverse_reads))] = dup_dict.get(str(len(reverse_reads)), 0) + 1
+                    dup_dict[len(reverse_reads)] = dup_dict.get(len(reverse_reads), 0) + 1
                     if maximum_stacks is None or len(reverse_reads) < maximum_stacks:
                         if len(reverse_reads) >= maximum_stacks_allowed:
                             reverse_reads = random.sample(reverse_reads, 2)
