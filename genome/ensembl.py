@@ -4,6 +4,7 @@ __author__ = 'sahu'
 import os
 import pprint
 import sys
+import subprocess
 # third party imports
 import pysam
 # local imports
@@ -99,3 +100,78 @@ class EnsemblGenome:
         for chr in all_chromosome:
             refrence_length.append((chr, self.genome_fasta_load.get_reference_length(chr)))
         return refrence_length
+
+
+class InstallNewGenome:
+    def __init__(self, release, ensemblbasepath, path='/ps/imt/f/reference_genomes', consortium='ensembl', organism='homo_sapiens'):
+        self.ensemblbasepath = ensemblbasepath
+        self.basepath = path
+        self.consortium = consortium
+        self.organism = organism
+        self.release = release
+        self.release_path = None
+        self.create_dir_structure()
+
+    def help(self):
+        print("Release: Please specify which release to download e.g. '74'")
+        print("Ensembl path: This is the base path from where the files will be downloaded"
+              "\nAccording to guidelines this should have some alterations as we use rsync:"
+              "\nExample: rsync://ftp.ensembl.org/ensembl/pub/release-74/")
+
+    def create_dir_structure(self):
+        """To create dir structure for a new genome"""
+        Rpath = os.path.join(self.basepath, self.organism, self.consortium, 'release-'+self.release)
+        self.release_path = Rpath
+        if not os.path.exists(Rpath):
+            os.makedirs(Rpath)
+        for folder in ['Annotations', 'Sequence']:
+            if not os.path.exists(os.path.join(Rpath, folder)):
+                os.makedirs(os.path.join(Rpath, folder))
+        for folder in ['Bowtie2Index', 'Chromosomes', 'WholeGenomeFasta']:
+            if not os.path.exists(os.path.join(Rpath, 'Sequence', folder)):
+                os.makedirs(os.path.join(Rpath, 'Sequence', folder))
+
+    def download_whole_genome_fa(self):
+        """We will download genomic files from ensembl"""
+        cmd =['rsync -av']
+        #cmd.extend(['--include "*.dna.primary_assembly.fa.gz"'])
+        cmd.extend(['--include "CHECKSUMS"'])
+        cmd.extend(['--exclude "*"'])
+        cmd.extend([os.path.join(self.ensemblbasepath, 'fasta', self.organism, 'dna', '')])  # from where to download
+        cmd.extend([os.path.join(self.release_path, 'Sequence', 'WholeGenomeFasta', '')])  # where to save
+        print(cmd)
+        cmd = ' '.join(cmd)
+        print(cmd)
+        try:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            #proc.wait()
+            stdout, stderr = proc.communicate()
+            print('STDOUT:', stdout)
+            print('STDERR:', stderr)
+        except Exception as e:
+            print(e)
+
+
+    def download_chromosome_fa(self):
+        """We will download genomic files from ensembl"""
+        cmd =['rsync -av']
+        #cmd.extend(['--include "*.dna.chromosome.*.fa.gz"'])
+        cmd.extend(['--include "CHECKSUMS"'])
+        cmd.extend(['--include "README"'])
+        cmd.extend(['--exclude "*"'])
+        cmd.extend([os.path.join(self.ensemblbasepath, 'fasta', self.organism, 'dna', '')])  # from where to download
+        cmd.extend([os.path.join(self.release_path, 'Sequence', 'Chromosomes', '')])  # where to save
+        print(cmd)
+        cmd = ' '.join(cmd)
+        print(cmd)
+        try:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            #proc.wait()
+            stdout, stderr = proc.communicate()
+            print('STDOUT:', stdout)
+            print('STDERR:', stderr)
+        except Exception as e:
+            print(e)
+
+
+
