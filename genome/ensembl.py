@@ -103,6 +103,9 @@ class EnsemblGenome:
 
 
 class InstallNewGenome:
+    """
+    Download genome from ENSEMBL using rsync
+    """
     def __init__(self, release, ensemblbasepath, path='/ps/imt/f/reference_genomes', consortium='ensembl', organism='homo_sapiens'):
         self.ensemblbasepath = ensemblbasepath
         self.basepath = path
@@ -112,8 +115,16 @@ class InstallNewGenome:
         self.release_path = None
         self.create_dir_structure()
 
+    def run(self):
+        self.download_whole_genome_fa()
+        self.download_chromosome_fa()
+        self.download_annotations()
+        print("Change the names of downloaded files e.g. *.gtf as genes.gtf.gz wholegenomefile *.fa.gz as genome.fa.gz"
+              "before running BuildGenome.")
+
     def help(self):
         print("Release: Please specify which release to download e.g. '74'")
+        print("")
         print("Ensembl path: This is the base path from where the files will be downloaded"
               "\nAccording to guidelines this should have some alterations as we use rsync:"
               "\nExample: rsync://ftp.ensembl.org/ensembl/pub/release-74/")
@@ -124,7 +135,7 @@ class InstallNewGenome:
         self.release_path = Rpath
         if not os.path.exists(Rpath):
             os.makedirs(Rpath)
-        for folder in ['Annotations', 'Sequence']:
+        for folder in ['Annotation', 'Sequence']:
             if not os.path.exists(os.path.join(Rpath, folder)):
                 os.makedirs(os.path.join(Rpath, folder))
         for folder in ['Bowtie2Index', 'Chromosomes', 'WholeGenomeFasta']:
@@ -133,8 +144,8 @@ class InstallNewGenome:
 
     def download_whole_genome_fa(self):
         """We will download genomic files from ensembl"""
-        cmd =['rsync -av']
-        #cmd.extend(['--include "*.dna.primary_assembly.fa.gz"'])
+        cmd = ['rsync -av']
+        cmd.extend(['--include "*.dna.primary_assembly.fa.gz"'])
         cmd.extend(['--include "CHECKSUMS"'])
         cmd.extend(['--exclude "*"'])
         cmd.extend([os.path.join(self.ensemblbasepath, 'fasta', self.organism, 'dna', '')])  # from where to download
@@ -144,18 +155,23 @@ class InstallNewGenome:
         print(cmd)
         try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            #proc.wait()
             stdout, stderr = proc.communicate()
-            print('STDOUT:', stdout)
-            print('STDERR:', stderr)
+            #print('STDOUT:', stdout)
+            #print('STDERR:', stderr)
+            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
+                file.write(stdout.decode('utf-8'))
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(stderr.decode('utf-8'))
         except Exception as e:
-            print(e)
-
+            #print(e)
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(e)
+        file.close()
 
     def download_chromosome_fa(self):
         """We will download genomic files from ensembl"""
-        cmd =['rsync -av']
-        #cmd.extend(['--include "*.dna.chromosome.*.fa.gz"'])
+        cmd = ['rsync -av']
+        cmd.extend(['--include "*.dna.chromosome.*.fa.gz"'])
         cmd.extend(['--include "CHECKSUMS"'])
         cmd.extend(['--include "README"'])
         cmd.extend(['--exclude "*"'])
@@ -168,10 +184,104 @@ class InstallNewGenome:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             #proc.wait()
             stdout, stderr = proc.communicate()
-            print('STDOUT:', stdout)
-            print('STDERR:', stderr)
+            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
+                file.write(stdout.decode('utf-8'))
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(stderr.decode('utf-8'))
         except Exception as e:
-            print(e)
+            #print(e)
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(e)
+        file.close()
+
+    def download_annotations(self):
+        """We will download genomic annotation files from ensembl e.g. gtf, gff3"""
+        cmd = ['rsync -av']
+        cmd.extend(['--include', '*.'+self.release+'.gtf.gz'])
+        cmd.extend(['--include "CHECKSUMS"'])
+        cmd.extend(['--include "README"'])
+        cmd.extend(['--exclude "*"'])
+        cmd.extend([os.path.join(self.ensemblbasepath, 'gtf', self.organism, '')])  # from where to download
+        cmd.extend([os.path.join(self.release_path, 'Annotation', 'gtf', '')])  # where to save
+        cmd = ' '.join(cmd)
+        print(cmd)
+        try:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            #proc.wait()
+            stdout, stderr = proc.communicate()
+            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
+                file.write(stdout.decode('utf-8'))
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(stderr.decode('utf-8'))
+        except Exception as e:
+            #print(e)
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(e)
+            print('Problem in downloading gtf file check tha path:\n')
+        del cmd
+
+        cmd = ['rsync -av']
+        cmd.extend(['--include', '*.'+self.release+'.gff3.gz'])
+        cmd.extend(['--include "CHECKSUMS"'])
+        cmd.extend(['--include "README"'])
+        cmd.extend(['--exclude "*"'])
+        cmd.extend([os.path.join(self.ensemblbasepath, 'gff3', self.organism, '')])  # from where to download
+        cmd.extend([os.path.join(self.release_path, 'Annotation', 'gff3', '')])  # where to save
+        cmd = ' '.join(cmd)
+        print(cmd)
+        try:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            #proc.wait()
+            stdout, stderr = proc.communicate()
+            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
+                file.write(stdout.decode('utf-8'))
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(stderr.decode('utf-8'))
+        except Exception as e:
+            #print(e)
+            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
+                file.write(e)
+            print('Problem in downloading gff3 file check tha path:\n')
+        file.close()
 
 
+class BuildGenome(object):
+    """ This will finish the job for installing and building the genome
+    """
+    def __init__(self, Igenome):
+        self.Igenome = Igenome
 
+    def unzip_allzipped_in_root(self):
+        """We will walk in the root folder and save path for all zipped files.
+        """
+        list_zip_files = []
+        for root, dirs, files in os.walk(self.Igenome.release_path):
+            print(root)
+            print(dirs)
+            if len(files) > 0:
+                for file in files:
+                    if file.endswith('.gz'):
+                        list_zip_files.append(os.path.join(root, file))
+        print(list_zip_files)
+        #  Unzipping the .gz
+        file = open(os.path.join(self.Igenome.release_path, self.Igenome.release+'.stdout'), 'a')
+        file1 = open(os.path.join(self.Igenome.release_path, self.Igenome.release+'.stderr'), 'a')
+        for filename in list_zip_files:
+            cmd = ' '.join(['gzip -d', filename])
+            try:
+                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                stdout, stderr = proc.communicate()
+                file.write(stdout.decode('utf-8'))
+                file1.write(stderr.decode('utf-8'))
+            except Exception as e:
+                #print(e)
+                file1.write(e)
+                print('Problem in downloading gff3 file check tha path:\n')
+        file.close()
+        file1.close()
+
+    def index_genome(self):
+        """Index the downloaded genome
+        can be further build to accommodate other aligners
+        """
+        return
