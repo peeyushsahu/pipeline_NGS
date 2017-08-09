@@ -5,35 +5,37 @@ import os
 import pprint
 import sys
 import subprocess
+import multiprocessing
+import logging
 # third party imports
 import pysam
 # local imports
 
+tools_folder = '/ps/imt/Pipeline_development/tools'
 
 class EnsemblGenome:
     '''This class encapsulates Ensembl genome for downstream analysis i.e. aligniment, peakcalling etc.
     '''
 
-    def __init__(self, species, build, version=None):
+    def __init__(self, species, release):
         '''
         Two arguments are needed for creating the instance.
-        :param species: name of species e.g. Homo_sapiens or Mus_musculus
-        :param build: name of build e.g. GRCh37, GRCm37
-        :param version: only BWA, define version of BWA = 'version0.5.x' or 'version0.6.0'
+        :param species: name of species e.g. homo_sapiens or mus_musculus
+        :param release: name of release e.g. 74, 89
         :return:
         '''
         self.species = species
-        self.build = build
-        self.name = 'Ensembl_%s_%s' % (self.species, self.build)
-        self.data_path = '/ps/imt/f/Genomes/genomes'
+        self.release = release
+        self.name = 'Ensembl_%s_%s' % (self.species, self.release)
+        self.data_path = '/ps/imt/f/reference_genomes'
         self.genome_path = self.find_genome_assembly()
         self.genome_fasta_load = None
 
     def find_genome_assembly(self):
-        genome_path = os.path.join(self.data_path, self.species, self.build)
+        genome_path = os.path.join(self.data_path, self.species, 'ensembl', self.release)
         if os.path.exists(genome_path):
             # print(genome_path)
-            print('Genome loaded successfully:', self.species, self.build)
+            print('Genome loaded successfully:', self.species, self.release)
             return genome_path
         else:
             print('Species and build names are case sensitive, provide correct names and combination.')
@@ -63,6 +65,7 @@ class EnsemblGenome:
 
     def get_bwa_index(self, version=None):
         """Get bowtie2 index path for passing to bowtie2 aligner
+        :param version: For BWA index, define version of BWA = 'version0.5.x' or 'version0.6.0'
         :return:
         """
         if version is None:
@@ -73,7 +76,13 @@ class EnsemblGenome:
         """Get gtf file path for passing to aligners.
         :return:
         """
-        return os.path.join(self.genome_path, 'Annotation', 'Genes', 'genes.gtf')
+        return os.path.join(self.genome_path, 'Annotation', 'gtf', 'genes.gtf')
+
+    def get_gff3_path(self):
+        """Get gtf file path for passing to aligners.
+        :return:
+        """
+        return os.path.join(self.genome_path, 'Annotation', 'gff3', 'genes.gff3')
 
     def get_genome_fasta(self):
         """Get genome fasta file for aligners.
@@ -102,17 +111,19 @@ class EnsemblGenome:
         return refrence_length
 
 
-class InstallNewGenome:
+class DownloadGenome:
     """
     Download genome from ENSEMBL using rsync
     """
-    def __init__(self, release, ensemblbasepath, path='/ps/imt/f/reference_genomes', consortium='ensembl', organism='homo_sapiens'):
+    def __init__(self, release, ensemblbasepath=None, outpath='/ps/imt/f/reference_genomes', consortium='ensembl', organism='homo_sapiens'):
+        self.release = release
         self.ensemblbasepath = ensemblbasepath
-        self.basepath = path
+        if ensemblbasepath is None:
+            self.ensemblbasepath = ''.join(['rsync://ftp.ensembl.org/ensembl/pub/release-', release, '/'])
+        self.basepath = outpath
         self.consortium = consortium
         self.organism = organism
-        self.release = release
-        self.release_path = None
+        self.release_path = ''
         self.create_dir_structure()
 
     def run(self):
@@ -120,13 +131,14 @@ class InstallNewGenome:
         self.download_chromosome_fa()
         self.download_annotations()
         print("Change the names of downloaded files e.g. *.gtf as genes.gtf.gz wholegenomefile *.fa.gz as genome.fa.gz"
-              "before running BuildGenome.")
+              " before running BuildGenome.")
 
     def help(self):
+        print("++++++++++++++Only for ENSEMBL genomes++++++++++++++")
         print("Release: Please specify which release to download e.g. '74'")
         print("")
-        print("Ensembl path: This is the base path from where the files will be downloaded"
-              "\nAccording to guidelines this should have some alterations as we use rsync:"
+        print("Ensembl path: This is the base path from where the genome files will be downloaded"
+              "\nAccording to guidelines there should be some alterations as we use rsync:"
               "\nExample: rsync://ftp.ensembl.org/ensembl/pub/release-74/")
 
     def create_dir_structure(self):
@@ -141,6 +153,7 @@ class InstallNewGenome:
         for folder in ['Bowtie2Index', 'Chromosomes', 'WholeGenomeFasta']:
             if not os.path.exists(os.path.join(Rpath, 'Sequence', folder)):
                 os.makedirs(os.path.join(Rpath, 'Sequence', folder))
+        print('Resource will be downloaded from:\n', self.ensemblbasepath)
 
     def download_whole_genome_fa(self):
         """We will download genomic files from ensembl"""
@@ -150,23 +163,22 @@ class InstallNewGenome:
         cmd.extend(['--exclude "*"'])
         cmd.extend([os.path.join(self.ensemblbasepath, 'fasta', self.organism, 'dna', '')])  # from where to download
         cmd.extend([os.path.join(self.release_path, 'Sequence', 'WholeGenomeFasta', '')])  # where to save
-        print(cmd)
         cmd = ' '.join(cmd)
-        print(cmd)
+        print('Downloading whole genome fasta')
+        file = open(os.path.join(self.release_path, self.release+'.stdout'), 'a')
+        file1 = open(os.path.join(self.release_path, self.release+'.stderr'), 'a')
         try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             stdout, stderr = proc.communicate()
-            #print('STDOUT:', stdout)
-            #print('STDERR:', stderr)
-            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
-                file.write(stdout.decode('utf-8'))
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(stderr.decode('utf-8'))
+            file.write(stdout.decode('utf-8'))
+            file1.write(cmd)
+            file1.write(stderr.decode('utf-8'))
         except Exception as e:
-            #print(e)
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(e)
+            file1.write(cmd)
+            file1.write(e)
+            print('Problem in downloading whole genome fasta file')
         file.close()
+        file1.close()
 
     def download_chromosome_fa(self):
         """We will download genomic files from ensembl"""
@@ -177,25 +189,26 @@ class InstallNewGenome:
         cmd.extend(['--exclude "*"'])
         cmd.extend([os.path.join(self.ensemblbasepath, 'fasta', self.organism, 'dna', '')])  # from where to download
         cmd.extend([os.path.join(self.release_path, 'Sequence', 'Chromosomes', '')])  # where to save
-        print(cmd)
         cmd = ' '.join(cmd)
-        print(cmd)
+        print('Downloading chromosome fasta')
+        file = open(os.path.join(self.release_path, self.release+'.stdout'), 'a')
+        file1 = open(os.path.join(self.release_path, self.release+'.stderr'), 'a')
         try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-            #proc.wait()
             stdout, stderr = proc.communicate()
-            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
-                file.write(stdout.decode('utf-8'))
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(stderr.decode('utf-8'))
+            file.write(stdout.decode('utf-8'))
+            file1.write(cmd)
+            file1.write(stderr.decode('utf-8'))
         except Exception as e:
-            #print(e)
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(e)
+            file1.write(cmd)
+            file1.write(e)
+            print('Problem in downloading chromosome fasta file')
         file.close()
+        file1.close()
 
     def download_annotations(self):
         """We will download genomic annotation files from ensembl e.g. gtf, gff3"""
+        # Downloadnig GTF file
         cmd = ['rsync -av']
         cmd.extend(['--include', '*.'+self.release+'.gtf.gz'])
         cmd.extend(['--include "CHECKSUMS"'])
@@ -204,22 +217,23 @@ class InstallNewGenome:
         cmd.extend([os.path.join(self.ensemblbasepath, 'gtf', self.organism, '')])  # from where to download
         cmd.extend([os.path.join(self.release_path, 'Annotation', 'gtf', '')])  # where to save
         cmd = ' '.join(cmd)
-        print(cmd)
+        print('Downloading annotation files')
+        file = open(os.path.join(self.release_path, self.release+'.stdout'), 'a')
+        file1 = open(os.path.join(self.release_path, self.release+'.stderr'), 'a')
         try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             #proc.wait()
             stdout, stderr = proc.communicate()
-            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
-                file.write(stdout.decode('utf-8'))
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(stderr.decode('utf-8'))
+            file.write(stdout.decode('utf-8'))
+            file1.write(cmd)
+            file1.write(stderr.decode('utf-8'))
         except Exception as e:
-            #print(e)
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(e)
+            print(e)
+            file1.write(cmd)
+            file1.write(e)
             print('Problem in downloading gtf file check tha path:\n')
         del cmd
-
+        # Downloading GFF file
         cmd = ['rsync -av']
         cmd.extend(['--include', '*.'+self.release+'.gff3.gz'])
         cmd.extend(['--include "CHECKSUMS"'])
@@ -228,55 +242,54 @@ class InstallNewGenome:
         cmd.extend([os.path.join(self.ensemblbasepath, 'gff3', self.organism, '')])  # from where to download
         cmd.extend([os.path.join(self.release_path, 'Annotation', 'gff3', '')])  # where to save
         cmd = ' '.join(cmd)
-        print(cmd)
         try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             #proc.wait()
             stdout, stderr = proc.communicate()
-            with open(os.path.join(self.release_path, self.release+'.stdout'), 'a') as file:
-                file.write(stdout.decode('utf-8'))
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(stderr.decode('utf-8'))
+            file.write(stdout.decode('utf-8'))
+            file1.write(cmd)
+            file1.write(stderr.decode('utf-8'))
         except Exception as e:
-            #print(e)
-            with open(os.path.join(self.release_path, self.release+'.stderr'), 'a') as file:
-                file.write(e)
+            file1.write(cmd)
+            file1.write(e)
             print('Problem in downloading gff3 file check tha path:\n')
         file.close()
+        file1.close()
 
 
 class BuildGenome(object):
-    """ This will finish the job for installing and building the genome
+    """ This will finish the job for downloading and building the genome
     """
-    def __init__(self, Igenome):
-        self.Igenome = Igenome
+    def __init__(self, DownloadGenome):
+        self.DownloadGenome = DownloadGenome
 
     def unzip_allzipped_in_root(self):
         """We will walk in the root folder and save path for all zipped files.
         """
         list_zip_files = []
-        for root, dirs, files in os.walk(self.Igenome.release_path):
-            print(root)
-            print(dirs)
+        for root, dirs, files in os.walk(self.DownloadGenome.release_path):
+            #print(root)
+            #print(dirs)
             if len(files) > 0:
                 for file in files:
                     if file.endswith('.gz'):
                         list_zip_files.append(os.path.join(root, file))
-        print(list_zip_files)
+        #print(list_zip_files)
         #  Unzipping the .gz
-        file = open(os.path.join(self.Igenome.release_path, self.Igenome.release+'.stdout'), 'a')
-        file1 = open(os.path.join(self.Igenome.release_path, self.Igenome.release+'.stderr'), 'a')
+        file = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stdout'), 'a')
+        file1 = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stderr'), 'a')
         for filename in list_zip_files:
             cmd = ' '.join(['gzip -d', filename])
             try:
                 proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
                 stdout, stderr = proc.communicate()
+                file.write(cmd)
                 file.write(stdout.decode('utf-8'))
                 file1.write(stderr.decode('utf-8'))
             except Exception as e:
-                #print(e)
+                file1.write(cmd)
                 file1.write(e)
-                print('Problem in downloading gff3 file check tha path:\n')
+                print('Problem in unpacking .gz, check stderr file\n')
         file.close()
         file1.close()
 
@@ -284,4 +297,28 @@ class BuildGenome(object):
         """Index the downloaded genome
         can be further build to accommodate other aligners
         """
-        return
+        import pysam
+        # Build bowtie2 index
+        whole_genome_fasta = os.path.join(self.DownloadGenome.release_path, 'Sequence', 'WholeGenomeFasta', 'genome.fa')
+
+        file = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stdout'), 'a')
+        file1 = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stderr'), 'a')
+
+        # Build bowtie2 index
+        bowtie2build = os.path.join(tools_folder, 'bowtie2', 'bowtie2-build')
+        threads = int(multiprocessing.cpu_count() - 1)
+        outpath = os.path.join(self.DownloadGenome.release_path, 'Sequence', 'Bowtie2Index', 'genome')
+        cmd = [bowtie2build, '-f', '--threads', str(threads), whole_genome_fasta, outpath]
+        try:
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = proc.communicate()
+            file.write(stdout.decode('utf-8'))
+            file1.write(stderr.decode('utf-8'))
+        except Exception as e:
+            file1.write(cmd)
+            file1.write(e)
+            print('Problem in building genome index check stderr file\n')
+        # index whole genome fasta with samtools
+        pysam.faidx(whole_genome_fasta)
+        file.close()
+        file1.close()
