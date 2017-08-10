@@ -6,7 +6,7 @@ __author__ = 'sahu'
 from genome import ensembl
 import alignment
 
-genome = ensembl.EnsemblGenome('Homo_sapiens', 'GRCh37')
+genome = ensembl.EnsemblGenome('Homo_sapiens', '89')
 
 aligner = alignment.aligners.Bowtie2()
 aligner.get_version()

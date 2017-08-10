@@ -111,7 +111,7 @@ class EnsemblGenome:
         return refrence_length
 
 
-class DownloadGenome:
+class DownloadEnsemblGenome:
     """
     Download genome from ENSEMBL using rsync
     """
@@ -260,8 +260,12 @@ class DownloadGenome:
 class BuildGenome(object):
     """ This will finish the job for downloading and building the genome
     """
-    def __init__(self, DownloadGenome):
-        self.DownloadGenome = DownloadGenome
+    def __init__(self, DownloadEnsemblGenome):
+        self.DownloadGenome = DownloadEnsemblGenome
+
+    def run(self):
+        self.unzip_allzipped_in_root()
+        self.index_genome()
 
     def unzip_allzipped_in_root(self):
         """We will walk in the root folder and save path for all zipped files.
@@ -319,6 +323,10 @@ class BuildGenome(object):
             file1.write(e)
             print('Problem in building genome index check stderr file\n')
         # index whole genome fasta with samtools
-        pysam.faidx(whole_genome_fasta)
+        try:
+            pysam.faidx(whole_genome_fasta)
+        except Exception as e:
+            print('Problem in pysam faidx')
+            print(e)
         file.close()
         file1.close()
