@@ -33,6 +33,7 @@ class EnsemblGenome:
 
     def find_genome_assembly(self):
         genome_path = os.path.join(self.data_path, self.species, 'ensembl', self.release)
+        print(genome_path)
         if os.path.exists(genome_path):
             # print(genome_path)
             print('Genome loaded successfully:', self.species, self.release)
@@ -46,6 +47,7 @@ class EnsemblGenome:
 
     def show_available_genomes(self):
         path = self.data_path
+        print(path)
         all_genomes = {}
         for species in os.listdir(path):
             all_genomes[species] = os.listdir(os.path.join(path, species))

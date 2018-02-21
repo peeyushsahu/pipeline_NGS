@@ -6,22 +6,24 @@ __author__ = 'sahu'
 from genome import ensembl
 import alignment
 
-genome = ensembl.EnsemblGenome('Homo_sapiens', '89')
+genome = ensembl.EnsemblGenome('Homo_sapiens', '74')
 
 aligner = alignment.aligners.Bowtie2()
 aligner.get_version()
 
 raw_lanes = [
-    #alignment.lanes.Lane('NT2D1_test_file', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/Sample_41_K27ac_WT10_ChIP25_110915'),
-    alignment.lanes.Lane('NT2D1_K4me3', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/Sample_40_K4me3_WT10_ChIP25_110915'),
-    #alignment.lanes.Lane('NT2D1_E9_3', '/ps/imt/f/20151127_RNA/Sample_E_9_C3_250915_R9'),
+    #alignment.lanes.Lane('AML_Pat_SKI', '/ps/imt/f/christine/20180103/Sample_Feld_1_AML_Patient_anti-SKI'),
+    #alignment.lanes.Lane('AML_Pat_RUNX1', '/ps/imt/f/christine/20180103/Sample_Feld_2_AML_Pat_anti-RUNX1'),
+    #alignment.lanes.Lane('AML_Pat_Input', '/ps/imt/f/christine/20180103/Sample_Feld_3_AML_Pat_Input'),
 ]
 print(raw_lanes[0].input_files)
 
+raw_lanes = dict((x.name, x) for x in raw_lanes)
+
 aligned_lane = {}
-for lane in raw_lanes:
+for name, lane in raw_lanes.items():
     lane.do_quality_check()
-    aligned_lane[lane.name] = lane.align(genome, aligner)
+    aligned_lane[name] = lane.align(genome, aligner)
 
 max_stack = 7
 for name, a_lane in aligned_lane.items():
