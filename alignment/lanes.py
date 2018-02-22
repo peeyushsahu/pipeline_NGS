@@ -172,7 +172,13 @@ class AlignedLaneDedup(object):
         print(dup_dict)
         return dup_dict
 
-    def callPeaks(self, peakscaller, sample, controlsample, name, outdir, broad_cutoff, broadpeaks=False):
+    def callPeaks(self, peakscaller, treatmentsample, controlsample, name, outdir, broad_cutoff, broadpeaks=False):
+
+        if not hasattr(peakscaller, 'run_peakcaller'):
+            raise AttributeError(
+                'First parameter to call peaks should be a peak caller and %s was missing %s'
+                % (peakscaller, 'run_peakcaller')
+            )
         return
 
 

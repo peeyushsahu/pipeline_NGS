@@ -334,7 +334,7 @@ class AnnotateNearestGenes:
 
 class AnnotatePeaks:
 
-    def __init__(self, dataframe, path4annotations='/ps/imt/f/Genomes/geneAnotations'):
+    def __init__(self, dataframe, path4annotations='/ps/imt/f/reference_genomes/geneAnotations'):
         self.dataframe = dataframe
         self.path4annotations = path4annotations
 
@@ -379,7 +379,7 @@ class AnnotatePeaks:
         peak_df['chr'] = peak_df['chr'].astype(str)
         peak_df_group = peak_df.groupby('chr')
 
-        annotated_df = peak_df[['chr', 'start', 'stop', 'summit']]
+        annotated_df = peak_df#[['chr', 'start', 'stop', 'summit']]
         annotated_df.loc[:, 'genomic_annotation'] = np.array(['NA'] * len(annotated_df))
         ind_ge_annotation = annotated_df.columns.get_loc('genomic_annotation')
 

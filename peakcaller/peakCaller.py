@@ -1,5 +1,6 @@
 import subprocess as sp
 import os
+import pandas as pd
 
 __author__ = 'peeyush'
 
@@ -12,7 +13,7 @@ class MACS:
     def __init__(self, mfold=(8, 30), no_model_shift_size=False, dededuplicate=False, keep_dup=False, p_value=1e-5,
                  save_wig_space=False, to_small=False):
         self.macs_dir = "/home/sahu/Documents/MACS/bin"
-        self.macs_cmd = os.path.join(self.macs_dir, 'macs')
+        self.macs_cmd = os.path.join(self.macs_dir, 'macs14')
 
         self.parameter = {'mfold': mfold,
                           'no_model_shift_size': no_model_shift_size,
@@ -31,10 +32,10 @@ class MACS:
             self.version = stdout
         print('MACS version:', self.version)
 
-    def run_peakcaller(self, treatment_lane, control_lane, output_filename, genome_size):
+    def run_peakcaller(self, treatment_lane, control_lane, name, output_filepath, genome_size):
         cmd = ['python', self.macs_cmd,
                '--treatment=%s' % treatment_lane.dedup_filename,
-               '--name=%s', output_filename,
+               '--name=%s' % os.path.join(output_filepath, name),
                '--format=BAM',
                '--gsize=%s' % genome_size,  # write 'hs' for homo sapiens and 'mm' for mus musculus
                '--tsize=%i' % treatment_lane.seq_length,
@@ -71,9 +72,34 @@ class MACS:
         ## Run MACS
         p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         stdout, stderr = p.communicate()
-        out = open(os.path.join(output_filename, 'stdout.txt'), 'wb')
+        out = open(os.path.join(output_filepath, 'stdout.txt'), 'wb')
         out.write(stdout)
         out.close()
-        err = open(os.path.join(output_filename, 'stderr.tyt'), 'wb')
+        err = open(os.path.join(output_filepath, 'stderr.tyt'), 'wb')
         err.write(stderr)
         err.close()
+
+    def load_peaks(self, name, output_filepath):
+        '''
+        Load macs output as a pandas df
+        :param name:
+        :param output_filepath:
+        :return:
+        '''
+        macs_output_path = os.path.join(output_filepath, name + '.xls')
+        peak_df = pd.read_csv(macs_output_path, sep='\t', comment='#', skiprows=16)
+        peak_df['chr'] = peak_df['chr'].astype(str)
+        peak_df['start'] -= 1  # correct for macs one base offset
+        peak_df['start'] = peak_df['start'].clip(lower=0)
+        peak_df['end'] -= 1
+        peak_df['-10*log10(pvalue)'] /= 10.0
+        renames = {}
+        for col in ['end', 'fold_enrichment', '-10*log10(pvalue)', 'tags']:
+            renames[col] = 'MACS '+col
+        if 'FDR(%)' in peak_df.columns:
+            renames['FDR(%)'] = 'FDR'
+            peak_df['FDR(%)'] /= 100.0
+        peak_df = peak_df.rename(columns=renames)
+        if 'FDR' not in peak_df.columns:
+            peak_df = peak_df.assign('FDR', 1)
+        return peak_df
