@@ -8,7 +8,7 @@ import multiprocessing
 # third party imports
 import pysam
 # local imports
-import alignment.commons as common
+import alignment.commons as commons
 import genome.ensembl as ensembl
 
 
@@ -103,30 +103,10 @@ class Bowtie2(object):
 
         def sam_2_bam():
             """Now we will convert bowtie sam output to bam and sort and index it"""
-            common.sam_2_bam(tools_folder, temp_outputfile, uniquely_aligned_output_file).run()
+            commons.sam_2_bam(tools_folder, temp_outputfile, uniquely_aligned_output_file).run()
 
-        def bam_2_tdf():
-            """Now one more conversion bam --> tdf for igv (these tracks are light)"""
-            stdout, stderr = common.bam_2_tdf(tools_folder, uniquely_aligned_output_file, window_size=5)
-            print('here')
-            print(stdout)
-            print(stderr)
-            try:
-                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stderr'), 'wt')
-                for line in stderr.decode(encoding='utf-8').split('\n'):
-                    file.write(line)
-                file.close()
-
-                file = open(os.path.join(alignedlane.cache_dir, lane.name + '.stdout'), 'wt')
-                for line in stdout.decode(encoding='utf-8').split('\n'):
-                    file.write(line)
-                file.close()
-            except Exception as e:
-                print('Error:', e)
-                pass
         align_to_sam()
         sam_2_bam()
-        bam_2_tdf()
         if os.path.exists(temp_outputfile):
             print('Removing sam file')
             os.remove(temp_outputfile)
@@ -142,3 +122,43 @@ class Bowtie2(object):
         p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
         stdout, stderr = p.communicate()
         return stdout, stderr
+
+
+class ConvertBam(object):
+    '''
+    Convert bam files to desired format.
+    '''
+    def __init__(self, alignedlane):
+        self.alignedlane = alignedlane
+
+    def bam_2_tdf(self):
+        """Now one more conversion bam --> tdf for igv (these tracks are light)"""
+        stdout, stderr = commons.bam_2_tdf(tools_folder, self.alignedlane.uniquely_aligned_output_file, window_size=50)
+        try:
+            file = open(os.path.join(self.alignedlane.cache_dir, self.alignedlane.lane.name + '.stderr'), 'wt')
+            for line in stderr.decode(encoding='utf-8').split('\n'):
+                file.write(line)
+            file.close()
+
+            file = open(os.path.join(self.alignedlane.cache_dir, self.alignedlane.lane.name + '.stdout'), 'wt')
+            for line in stdout.decode(encoding='utf-8').split('\n'):
+                file.write(line)
+            file.close()
+        except Exception as e:
+            print('Error:', e)
+
+    def bam_2_bw(self):
+        """Now one more conversion bam --> biwwig for any genome browser (these tracks are light)"""
+        stdout, stderr = commons.bam_2_bw(tools_folder, self.alignedlane.uniquely_aligned_output_file, window_size=50)
+        try:
+            file = open(os.path.join(self.alignedlane.cache_dir, self.lane.name + '.stderr'), 'wt')
+            for line in stderr.decode(encoding='utf-8').split('\n'):
+                file.write(line)
+            file.close()
+
+            file = open(os.path.join(self.alignedlane.cache_dir, self.lane.name + '.stdout'), 'wt')
+            for line in stdout.decode(encoding='utf-8').split('\n'):
+                file.write(line)
+            file.close()
+        except Exception as e:
+            print('Error:', e)

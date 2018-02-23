@@ -7,8 +7,11 @@ import timeit
 # third party imports
 import pysam
 import random
+import pandas as pd
 # local imports
 import alignment
+import annotate.Annotate as annotate
+
 
 tools_folder = '/ps/imt/Pipeline_development/tools'
 
@@ -85,12 +88,50 @@ class AlignedLane(object):
     def do_quality_check(self):
         return
 
+    def convert_bam(self):
+        con_bam = alignment.aligners.ConvertBam(self)
+        con_bam.bam_2_bw()
+        return
 
-class AlignedLaneDedup(object):
+    def callpeaks(self, peakscaller, controlsample=None, name=None):
+        '''
+        This will call the peak caller of choice on selected lane.
+        :param peakscaller:
+        :param controlsample:
+        :param name:
+        :return:
+        '''
+        if not hasattr(peakscaller, 'run_peakcaller'):
+            raise AttributeError(
+                'First parameter to call peaks should be a peak caller and %s was missing %s'
+                % (peakscaller, 'run_peakcaller')
+            )
+
+        temp_dir = os.path.join(self.lane.base_path, 'cache', peakscaller.peakcaller_name, name)
+        alignment.commons.ensure_path(temp_dir)
+        peakscaller.run_peakcaller(self, controlsample, temp_dir)
+        #print(temp_dir)
+        res = peakscaller.load_peaks(temp_dir)
+        annotation = annotate.AnnotatePeaks(res, self.genome.data_path)
+        anno_peaks = annotation.call_me()
+        if name is None:
+            name = self.name + '_peaks_' + peakscaller.peakcaller_name
+            if controlsample:
+                name += '_vs_' + controlsample.name
+        peak_file_path = os.path.join(self.lane.base_path, 'results', 'Peaks', name)
+        alignment.commons.ensure_path(peak_file_path)
+        anno_peaks.to_csv(os.path.join(peak_file_path, name+'.tsv'), sep='\t', header=True, index=False)
+
+
+class AlignedLaneDedup(AlignedLane):
     """Lane containing information for aligned lane de-duplication"""
-    def __init__(self, name, alignedlane):
+
+    def __init__(self, alignedlane, name):
+        self.lane = alignedlane.lane
+        self.genome = alignedlane.genome
+        self.aligner = alignedlane.aligner
         self.name = name
-        self.result_dir = alignedlane.result_dir+'_dedup'
+        self.result_dir = alignedlane.result_dir + '_dedup'
         self.cache_dir = alignedlane.cache_dir
         self.dedup_filename = os.path.join(self.result_dir, 'unique_%s_dedup.bam' % self.name)
         self.bam_path = alignedlane.unique_output_filename
@@ -171,15 +212,6 @@ class AlignedLaneDedup(object):
         dedup_bam.close()
         print(dup_dict)
         return dup_dict
-
-    def callPeaks(self, peakscaller, treatmentsample, controlsample, name, outdir, broad_cutoff, broadpeaks=False):
-
-        if not hasattr(peakscaller, 'run_peakcaller'):
-            raise AttributeError(
-                'First parameter to call peaks should be a peak caller and %s was missing %s'
-                % (peakscaller, 'run_peakcaller')
-            )
-        return
 
 
 

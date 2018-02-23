@@ -5,30 +5,50 @@ __author__ = 'sahu'
 # local imports
 from genome import ensembl
 import alignment
+import peakcaller.peakCaller as peakCaller
+import annotate.Annotate as annotate
+
 
 genome = ensembl.EnsemblGenome('Homo_sapiens', '74')
 
 aligner = alignment.aligners.Bowtie2()
+peak_caller = peakCaller.MACS('hs')  # 'hs' is for human genome size for mouse use 'mm'
 aligner.get_version()
 
 raw_lanes = [
-    #alignment.lanes.Lane('AML_Pat_SKI', '/ps/imt/f/christine/20180103/Sample_Feld_1_AML_Patient_anti-SKI'),
-    #alignment.lanes.Lane('AML_Pat_RUNX1', '/ps/imt/f/christine/20180103/Sample_Feld_2_AML_Pat_anti-RUNX1'),
-    #alignment.lanes.Lane('AML_Pat_Input', '/ps/imt/f/christine/20180103/Sample_Feld_3_AML_Pat_Input'),
+    alignment.lanes.Lane('MLL4_abg_E9', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_E9'),
+    #alignment.lanes.Lane('MLL4_abg_E9_RA', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_E9_RA'),
+    #alignment.lanes.Lane('MLL4_abg_B6', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_B6'),
+    #alignment.lanes.Lane('MLL4_abg_B6_RA', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_B6_RA'),
 ]
 print(raw_lanes[0].input_files)
 
 raw_lanes = dict((x.name, x) for x in raw_lanes)
 
+# Aligning fastq files
 aligned_lane = {}
 for name, lane in raw_lanes.items():
     lane.do_quality_check()
     aligned_lane[name] = lane.align(genome, aligner)
 
+# Deduplicating the bam files
 max_stack = 7
-for name, a_lane in aligned_lane.items():
-    dedup_lane = alignment.lanes.AlignedLaneDedup(name, a_lane)
-    dedup_lane.do_dedup(maximum_stacks=7)
+dedup_lane = {}
+for name, ali_lane in aligned_lane.items():
+    dedup_lane[name] = alignment.lanes.AlignedLaneDedup(ali_lane, name)
+    dedup_lane[name].do_dedup(maximum_stacks=max_stack)
+
+
+# Callig peaks on selected samples
+for s, c, name, caller in [
+    #('MLL4_abg_E9', 'MLL4_abg_B6', 'MLL4_abg_E9 vs MLL4_abg_B6', peak_caller),
+    ('MLL4_abg_E9', None, 'MLL4_abg_E9', peak_caller),
+]:
+    #dedup_lane[s].callpeaks(caller, dedup_lane[c], name)
+    dedup_lane[s].callpeaks(caller, None, name)
+
+
+
 
 '''
 # Aliging read files with chosen aligner

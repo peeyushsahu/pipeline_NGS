@@ -7,8 +7,8 @@ import timeit
 import mygene
 import numpy as np
 import traceback
-Path = paths.path()
-basepath = Path.basepath
+#Path = paths.path()
+#basepath = Path.basepath
 
 
 def geneid_converter(listofids, input_identifier = None, output_identifier = None):
@@ -334,9 +334,9 @@ class AnnotateNearestGenes:
 
 class AnnotatePeaks:
 
-    def __init__(self, dataframe, path4annotations='/ps/imt/f/reference_genomes/geneAnotations'):
+    def __init__(self, dataframe, path4annotations=None):
         self.dataframe = dataframe
-        self.path4annotations = path4annotations
+        self.path4annotations = os.path.join(path4annotations, 'geneAnotations')
 
     def call_me(self):
         '''
@@ -444,7 +444,7 @@ class AnnotatePeaks:
                 #print(List.shape, key, min(List.index), max(List.index))
                 loc = gtf_binary_search(List, int(key), min(List.index), max(List.index))
 
-                if loc != 'KEY NOT FOUND':
+                if not loc == 'KEY NOT FOUND':
                     nearest_gene = self.next_genes(gtfFile, loc, row)
                     #print(nearest_gene)
                     dataframe.iloc[ind, ind_nearestTss] = list(nearest_gene.keys())[0]

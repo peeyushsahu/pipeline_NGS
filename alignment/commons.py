@@ -78,7 +78,7 @@ def to_bed(peaks):
     return pd.DataFrame(bed)
 
 
-def bam_2_tdf(tools_path, bam_file_path, window_size=10, max_zoom=5, read_extension_factor=None, genome_name='hg19'):
+def bam_2_tdf(tools_path, bam_file_path, window_size=50, max_zoom=10, read_extension_factor=None, genome_name='hg19'):
     '''
     Convert BAM to TDF, TDF can be visualized on IGV browser.
     It is the distribution of bam file so very light.
@@ -101,12 +101,31 @@ def bam_2_tdf(tools_path, bam_file_path, window_size=10, max_zoom=5, read_extens
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
-        print(stdout, stderr)
+        #print(stdout, stderr)
         return stdout, stderr
     except Exception as e:
         raise IOError('Error in IGVTools:', e)
 
 
+def bam_2_bw(tools_path, bam_file_path, windowsize=50):
+    '''
+    Convert bam files to bigwig using deeptools.bamCoverage
+    :return:
+    '''
+    cmd = ['python']
+    cmd.extend([os.path.join(tools_path, 'deepTools-2.5.4', 'bin', 'bamCoverage'), ])
+    cmd.extend(['-b %s' % bam_file_path, ])
+    cmd.extend(['-o %s' % bam_file_path[:-4]+'.bw', ])
+    cmd.extend(['-bs %i' % windowsize, ])
+    cmd.extend(['-of bigwig', ])  # bedgraph or bigwig
+    #print(cmd)
+    print(' '.join(cmd))
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+        return stdout, stderr
+    except Exception as e:
+        raise IOError('Subprocessexited with error:', e)
 
 def peakdf_columns():
     '''
