@@ -36,7 +36,7 @@ class MACS:
 
     def run_peakcaller(self, treatment_lane, control_lane, output_filepath):
         cmd = ['python', self.macs_cmd,
-               '--treatment=%s' % treatment_lane.dedup_filename,
+               '--treatment=%s' % treatment_lane.unique_output_filename,
                '--name=%s' % os.path.join(output_filepath, 'peaks'),
                '--format=BAM',
                '--gsize=%s' % self.genome_size,  # write 'hs' for homo sapiens and 'mm' for mus musculus
@@ -45,7 +45,7 @@ class MACS:
                '--mfold=%i,%i' % (self.parameter['mfold'][0], self.parameter['mfold'][0]),
                ]
         if control_lane:
-            cmd.extend(['--control=%s' % control_lane.dedup_filename, ])
+            cmd.extend(['--control=%s' % control_lane.unique_output_filename, ])
 
         if self.parameter['no_model_shift_size']:
             cmd.extend(['--nomodal',
@@ -70,7 +70,7 @@ class MACS:
             # macs guestimates an expected repetition count from this
             cmd.append('--keep-dup=auto')
 
-        print('MACS run command:', '_'.join(cmd))
+        print('MACS run command:', ' '.join(cmd))
         ## Run MACS
         p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         stdout, stderr = p.communicate()

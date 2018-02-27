@@ -83,15 +83,18 @@ class AlignedLane(object):
         alignment.commons.ensure_path(self.result_dir)
         alignment.commons.ensure_path(self.cache_dir)
         self.aligner.align(self, self.lane, self.genome, self.unique_output_filename, self.failed_align_filename)
-        return None
+        #return None
 
     def do_quality_check(self):
         return
 
-    def convert_bam(self):
+    def convert_bam2bw(self):
         con_bam = alignment.aligners.ConvertBam(self)
         con_bam.bam_2_bw()
-        return
+
+    def convert_bam2tdf(self):
+        con_bam = alignment.aligners.ConvertBam(self)
+        con_bam.bam_2_tdf()
 
     def callpeaks(self, peakscaller, controlsample=None, name=None):
         '''
@@ -126,14 +129,14 @@ class AlignedLane(object):
 class AlignedLaneDedup(AlignedLane):
     """Lane containing information for aligned lane de-duplication"""
 
-    def __init__(self, alignedlane, name):
+    def __init__(self, alignedlane):
         self.lane = alignedlane.lane
         self.genome = alignedlane.genome
         self.aligner = alignedlane.aligner
-        self.name = name
+        self.name = alignedlane.name
         self.result_dir = alignedlane.result_dir + '_dedup'
         self.cache_dir = alignedlane.cache_dir
-        self.dedup_filename = os.path.join(self.result_dir, 'unique_%s_dedup.bam' % self.name)
+        self.unique_output_filename = os.path.join(self.result_dir, 'unique_%s_dedup.bam' % self.name)
         self.bam_path = alignedlane.unique_output_filename
 
     def do_dedup(self, maximum_stacks=None, maximum_stacks_allowed=2):
@@ -148,7 +151,7 @@ class AlignedLaneDedup(AlignedLane):
         reverse_reads = set()
 
         bamfile = pysam.AlignmentFile(self.bam_path, "rb")
-        dedup_bam = pysam.AlignmentFile(self.dedup_filename, "wb", template=bamfile)
+        dedup_bam = pysam.AlignmentFile(self.unique_output_filename, "wb", template=bamfile)
         for read in bamfile.fetch():
             if not read.is_reverse:
                 if read.pos == last_forward_position:
@@ -204,13 +207,14 @@ class AlignedLaneDedup(AlignedLane):
         dedup_bam.close()
         bamfile.close()
         # Sorting and Indexing dedup alignment file
-        SI_bam = alignment.commons.sam_2_bam(tools_folder, None, self.dedup_filename)
+        SI_bam = alignment.commons.sam_2_bam(tools_folder, None, self.unique_output_filename)
         SI_bam.sorting_bam()
         SI_bam.indexing_bam()
-        dedup_bam = pysam.AlignmentFile(self.dedup_filename, "rb")
+        dedup_bam = pysam.AlignmentFile(self.unique_output_filename, "rb")
         print('Aligned read in dedupped bam:', dedup_bam.mapped)
         dedup_bam.close()
         print(dup_dict)
+        alignment.quality_check.plot_alignment_duplication(dup_dict, self.result_dir)
         return dup_dict
 
 

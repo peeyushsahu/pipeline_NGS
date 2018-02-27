@@ -256,7 +256,7 @@ class PlotLaneQCdata:
         gc_dist = []
         for key, val in seq_gc.items():
             gc_dist.extend([key]*val)
-        sns.distplot(x, fit=norm, kde=False, hist=True, norm_hist=True, label='Theoratical dist')
+        sns.distplot(x, fit=norm, kde=False, hist=False, norm_hist=True, label='Theoratical dist')
         sns.distplot(gc_dist, fit=norm, hist=True, kde=False, color="r", norm_hist=True, label='GC dist per read')
         plt.xlim(0, 100)
         plt.legend()
@@ -393,3 +393,18 @@ def write_lane_qc_results(QC_result_dict, outpath):
         for key in QC_result_dict['seq_qual_dict'].keys():
             file.write(str(key)+'\t'+str(QC_result_dict['seq_qual_dict'][key])+'\n')
     file.close()
+
+
+def plot_alignment_duplication(dup_dict, outpath):
+    """Plot qPCR duplication in aligned BAM file"""
+    dup_dict = dup_dict
+    plt.figure(figsize=(10, 8))
+    plt.plot(list(dup_dict.keys()), list(dup_dict.values()), 'k', list(dup_dict.keys()), list(dup_dict.values()), 'ko')
+    #red_patch = mpatches.Patch(label='Sequence quality')
+    #plt.legend(handles=[red_patch], loc='upper right')
+    plt.xlabel('Sequence duplication')
+    plt.ylabel('Sequence count')
+    plt.title('Duplication distribution over all positions')
+    plt.tight_layout()
+    plt.savefig(os.path.join(outpath, 'align_dup_plot.svg'))
+    plt.close()

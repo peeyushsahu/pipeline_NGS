@@ -133,7 +133,7 @@ class ConvertBam(object):
 
     def bam_2_tdf(self):
         """Now one more conversion bam --> tdf for igv (these tracks are light)"""
-        stdout, stderr = commons.bam_2_tdf(tools_folder, self.alignedlane.uniquely_aligned_output_file, window_size=50)
+        stdout, stderr = commons.bam_2_tdf(tools_folder, self.alignedlane.unique_output_filename, window_size=50)
         try:
             file = open(os.path.join(self.alignedlane.cache_dir, self.alignedlane.lane.name + '.stderr'), 'wt')
             for line in stderr.decode(encoding='utf-8').split('\n'):
@@ -149,14 +149,14 @@ class ConvertBam(object):
 
     def bam_2_bw(self):
         """Now one more conversion bam --> biwwig for any genome browser (these tracks are light)"""
-        stdout, stderr = commons.bam_2_bw(tools_folder, self.alignedlane.uniquely_aligned_output_file, window_size=50)
+        stdout, stderr = commons.bam_2_bw(tools_folder, self.alignedlane.unique_output_filename, window_size=50)
         try:
-            file = open(os.path.join(self.alignedlane.cache_dir, self.lane.name + '.stderr'), 'wt')
+            file = open(os.path.join(self.alignedlane.cache_dir, self.alignedlane.name + '.stderr'), 'wt')
             for line in stderr.decode(encoding='utf-8').split('\n'):
                 file.write(line)
             file.close()
 
-            file = open(os.path.join(self.alignedlane.cache_dir, self.lane.name + '.stdout'), 'wt')
+            file = open(os.path.join(self.alignedlane.cache_dir, self.alignedlane.name + '.stdout'), 'wt')
             for line in stdout.decode(encoding='utf-8').split('\n'):
                 file.write(line)
             file.close()

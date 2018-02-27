@@ -107,7 +107,7 @@ def bam_2_tdf(tools_path, bam_file_path, window_size=50, max_zoom=10, read_exten
         raise IOError('Error in IGVTools:', e)
 
 
-def bam_2_bw(tools_path, bam_file_path, windowsize=50):
+def bam_2_bw(tools_path, bam_file_path, window_size=50):
     '''
     Convert bam files to bigwig using deeptools.bamCoverage
     :return:
@@ -116,12 +116,12 @@ def bam_2_bw(tools_path, bam_file_path, windowsize=50):
     cmd.extend([os.path.join(tools_path, 'deepTools-2.5.4', 'bin', 'bamCoverage'), ])
     cmd.extend(['-b %s' % bam_file_path, ])
     cmd.extend(['-o %s' % bam_file_path[:-4]+'.bw', ])
-    cmd.extend(['-bs %i' % windowsize, ])
+    cmd.extend(['-bs %i' % window_size, ])
     cmd.extend(['-of bigwig', ])  # bedgraph or bigwig
-    #print(cmd)
-    print(' '.join(cmd))
+    cmd = ' '.join(cmd)
+    print('Running bam to BigWig:', cmd)
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         stdout, stderr = proc.communicate()
         return stdout, stderr
     except Exception as e:
