@@ -12,7 +12,7 @@ import alignment.commons as commons
 import genome.ensembl as ensembl
 
 
-tools_folder = '/ps/imt/Pipeline_development/tools'
+tools_folder = '/ps/imt/tools'
 
 
 class Bowtie2(object):
@@ -116,7 +116,7 @@ class Bowtie2(object):
         print('############# Aligning seqs with Bowtie2 ##############')
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
-        cmd = [os.path.join(tools_folder, self.name, self.name)]
+        cmd = [os.path.join(tools_folder, 'aligners', self.name, self.name)]
         cmd.extend(parameter)
         print(' '.join(cmd))
         p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)

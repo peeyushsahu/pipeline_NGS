@@ -11,7 +11,7 @@ import logging
 import pysam
 # local imports
 
-tools_folder = '/ps/imt/Pipeline_development/tools'
+tools_folder = '/ps/imt/tools'
 
 class EnsemblGenome:
     '''This class encapsulates Ensembl genome for downstream analysis i.e. aligniment, peakcalling etc.

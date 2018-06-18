@@ -15,10 +15,16 @@ peak_caller = peakCaller.MACS('hs')  # 'hs' is for human genome size for mouse u
 aligner.get_version()
 
 raw_lanes = [
-    alignment.lanes.Lane('MLL4_abg_E9', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_E9'),
-    alignment.lanes.Lane('MLL4_abg_E9_RA', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_E9_RA'),
-    #alignment.lanes.Lane('MLL4_abg_B6', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_B6'),
-    #alignment.lanes.Lane('MLL4_abg_B6_RA', '/ps/imt/Pipeline_development/raw_data/chipseq/singleEnd/fastq/MLL4_abg_B6_RA'),
+    alignment.lanes.Lane('Aatf_M_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA49'),
+    alignment.lanes.Lane('Aatf_M_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA50'),
+    alignment.lanes.Lane('Aatf_F_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA54'),
+    alignment.lanes.Lane('Aatf_F_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA55'),
+    alignment.lanes.Lane('Aatf_M_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA57'),
+    alignment.lanes.Lane('Aatf_M_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA59'),
+    alignment.lanes.Lane('Aatf_M_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA60'),
+    alignment.lanes.Lane('Aatf_F_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA62'),
+    alignment.lanes.Lane('Aatf_F_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA63'),
+    alignment.lanes.Lane('Aatf_M_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA64'),
 ]
 print(raw_lanes[0].input_files)
 
@@ -31,7 +37,7 @@ for name, lane in raw_lanes.items():
     aligned_lane[name] = lane.align(genome, aligner)
     aligned_lane[name].convert_bam2bw()
 
-# Deduplicating the bam files
+# Deduplicate the bam files
 max_stack = 7
 dedup_lane = {}
 for name, ali_lane in aligned_lane.items():
@@ -40,10 +46,10 @@ for name, ali_lane in aligned_lane.items():
     dedup_lane[name].convert_bam2bw()
 
 
-# Callig peaks on selected samples
+# Calling peaks on selected samples
 for s, c, name, caller in [
     #('MLL4_abg_E9', 'MLL4_abg_B6', 'MLL4_abg_E9 vs MLL4_abg_B6', peak_caller),
-    ('MLL4_abg_E9', None, 'MLL4_abg_E9', peak_caller),
+    ('H3R2me2a_B6_FlagP6_Doxy', None, 'H3R2me2a_B6_FlagP6_Doxy', peak_caller),
 ]:
     #dedup_lane[s].callpeaks(caller, dedup_lane[c], name)
     dedup_lane[s].callpeaks(caller, None, name)

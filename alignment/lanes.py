@@ -13,7 +13,7 @@ import alignment
 import annotate.Annotate as annotate
 
 
-tools_folder = '/ps/imt/Pipeline_development/tools'
+tools_folder = '/ps/imt/tools'
 
 
 class Lane(object):
