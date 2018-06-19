@@ -37,8 +37,9 @@ class Lane(object):
         else:
             res_fn = []
             for file in os.listdir(filename_or_directory):
-                if file.endswith('.fastq') or file.endswith('.fastq.gz'):
+                if file.endswith('.fastq') or file.endswith('.fastq.gz') or file.endswith('.fq.gz'):
                     res_fn.append(os.path.join(filename_or_directory, file))
+            #print(res_fn)
             return res_fn
 
     def align(self, genome, aligner, name=None):
@@ -57,7 +58,8 @@ class Lane(object):
         alignment.commons.ensure_path(self.result_dir)
         alignment.commons.ensure_path(self.cache_dir)
         if not self.is_paired:
-            alignment.quality_check.do_fastqc(self.input_files, self.result_dir, self.seq_length)
+            #alignment.quality_check.do_fastqc(self.input_files, self.result_dir, self.seq_length)
+            alignment.quality_check.do_fastqc_babraham(self.input_files, self.result_dir)
         else:
             print('fastq quality check for PE seq not availble')
 
@@ -66,6 +68,7 @@ class AlignedLane(object):
     """Lane containing sample alignment information"""
     def __init__(self, lane, genome, aligner, name=None):
         self.lane = lane
+        #print(self.lane.result_dir)
         self.aligner = aligner
         self.genome = genome
         if not hasattr(self, 'name'):
@@ -82,7 +85,7 @@ class AlignedLane(object):
     def align_data(self):
         alignment.commons.ensure_path(self.result_dir)
         alignment.commons.ensure_path(self.cache_dir)
-        self.aligner.align(self, self.lane, self.genome, self.unique_output_filename, self.failed_align_filename)
+        self.aligner.align(self, self.genome, self.unique_output_filename, self.failed_align_filename)
         #return None
 
     def do_quality_check(self):
@@ -129,10 +132,8 @@ class AlignedLane(object):
 class AlignedLaneDedup(AlignedLane):
     """Lane containing information for aligned lane de-duplication"""
 
-    def __init__(self, alignedlane):
-        self.lane = alignedlane.lane
-        self.genome = alignedlane.genome
-        self.aligner = alignedlane.aligner
+    def __init__(self, alignedlane, lane, genome, aligner):
+        super().__init__(lane, genome, aligner)
         self.name = alignedlane.name
         self.result_dir = alignedlane.result_dir + '_dedup'
         self.cache_dir = alignedlane.cache_dir

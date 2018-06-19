@@ -5,11 +5,31 @@ import timeit
 import os
 import collections
 import multiprocessing
+import subprocess
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import matplotlib.patches as mpatches
 import pandas as pd
+
+tools_folder = '/ps/imt/tools'
+
+
+def do_fastqc_babraham(fq_filepaths, outpath):
+    print('Babraham fastqc')
+    #print(fq_filepaths)
+    #print(outpath)
+    threads = str(int(multiprocessing.cpu_count() - 1))
+    qc_path = os.path.join(tools_folder, 'FastQC', 'fastqc')
+    cmd = [qc_path, '-t', threads, '-d', outpath, '-o', outpath]
+    cmd.extend(fq_filepaths)
+    print(' '.join(cmd))
+    try:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate()
+    except Exception as e:
+        print(e)
+        print(stderr)
 
 
 def do_fastqc(fq_filepaths, outpath, seq_length):
@@ -18,7 +38,7 @@ def do_fastqc(fq_filepaths, outpath, seq_length):
 
         while True:
             fq_path = job_queq.get()
-            print(fq_path)
+            #print(fq_path)
             if fq_path is None:
                 print('Worker-%d is exiting' % args)
                 break

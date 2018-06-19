@@ -117,7 +117,9 @@ class DownloadEnsemblGenome:
     """
     Download genome from ENSEMBL using rsync
     """
-    def __init__(self, release, ensemblbasepath=None, outpath='/ps/imt/f/reference_genomes', consortium='ensembl', organism='homo_sapiens'):
+    import os
+    import subprocess
+    def __init__(self, organism, release, ensemblbasepath=None, outpath='/ps/imt/f/reference_genomes', consortium='ensembl'):
         self.release = release
         self.ensemblbasepath = ensemblbasepath
         if ensemblbasepath is None:
@@ -179,6 +181,7 @@ class DownloadEnsemblGenome:
             file1.write(cmd)
             file1.write(e)
             print('Problem in downloading whole genome fasta file')
+            print(e)
         file.close()
         file1.close()
 
@@ -272,6 +275,7 @@ class BuildGenome(object):
     def unzip_allzipped_in_root(self):
         """We will walk in the root folder and save path for all zipped files.
         """
+        print('Unzipping all files....')
         list_zip_files = []
         for root, dirs, files in os.walk(self.DownloadGenome.release_path):
             #print(root)
@@ -305,23 +309,26 @@ class BuildGenome(object):
         """
         import pysam
         # Build bowtie2 index
+        print('Building index....')
         whole_genome_fasta = os.path.join(self.DownloadGenome.release_path, 'Sequence', 'WholeGenomeFasta', 'genome.fa')
 
         file = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stdout'), 'a')
         file1 = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stderr'), 'a')
 
         # Build bowtie2 index
-        bowtie2build = os.path.join(tools_folder, 'bowtie2', 'bowtie2-build')
-        threads = int(multiprocessing.cpu_count() - 1)
+        bowtie2build = os.path.join(tools_folder, 'aligners', 'bowtie2', 'bowtie2-build')
+        #threads = int(multiprocessing.cpu_count() - 1)
         outpath = os.path.join(self.DownloadGenome.release_path, 'Sequence', 'Bowtie2Index', 'genome')
-        cmd = [bowtie2build, '-f', '--threads', str(threads), whole_genome_fasta, outpath]
+        cmd = [bowtie2build, '-f', whole_genome_fasta, outpath]
+        #print(' '.join(cmd))
         try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = proc.communicate()
             file.write(stdout.decode('utf-8'))
             file1.write(stderr.decode('utf-8'))
         except Exception as e:
-            file1.write(cmd)
+            print(e)
+            file1.write(''.join(cmd))
             file1.write(e)
             print('Problem in building genome index check stderr file\n')
         # index whole genome fasta with samtools

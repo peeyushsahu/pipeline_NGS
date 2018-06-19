@@ -15,9 +15,12 @@ def get_basepath():
 
 def ensure_path(path):
     """Ensure if path exists else creates path"""
-    print(path)
-    if not os.path.exists(path):
-        os.makedirs(path)
+    #print('Ensuring path:', path)
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except Exception as e:
+        raise FileNotFoundError(e)
     return path
 
 

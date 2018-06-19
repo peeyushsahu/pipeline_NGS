@@ -9,22 +9,23 @@ import peakcaller.peakCaller as peakCaller
 import annotate.Annotate as annotate
 
 
-genome = ensembl.EnsemblGenome('Homo_sapiens', '74')
-aligner = alignment.aligners.Bowtie2()
-peak_caller = peakCaller.MACS('hs')  # 'hs' is for human genome size for mouse use 'mm'
+genome = ensembl.EnsemblGenome('mus_musculus', 'release-92') #'Homo_sapiens', '74'
+#aligner = alignment.aligners.Bowtie2()
+aligner = alignment.aligners.TopHat2(parameter=['--library-type', 'fr-secondstrand'])
+#peak_caller = peakCaller.MACS('hs')  # 'hs' is for human genome size for mouse use 'mm'
 aligner.get_version()
 
 raw_lanes = [
-    alignment.lanes.Lane('Aatf_M_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA49'),
-    alignment.lanes.Lane('Aatf_M_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA50'),
-    alignment.lanes.Lane('Aatf_F_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA54'),
-    alignment.lanes.Lane('Aatf_F_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA55'),
-    alignment.lanes.Lane('Aatf_M_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA57'),
-    alignment.lanes.Lane('Aatf_M_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA59'),
-    alignment.lanes.Lane('Aatf_M_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA60'),
-    alignment.lanes.Lane('Aatf_F_WT', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA62'),
-    alignment.lanes.Lane('Aatf_F_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA63'),
-    alignment.lanes.Lane('Aatf_M_KO', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA64'),
+    alignment.lanes.Lane('Aatf_M_WT_1', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA49'),
+    alignment.lanes.Lane('Aatf_M_WT_2', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA50'),
+    alignment.lanes.Lane('Aatf_F_WT_3', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA54'),
+    alignment.lanes.Lane('Aatf_F_KO_1', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA55'),
+    alignment.lanes.Lane('Aatf_M_KO_2', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA57'),
+    alignment.lanes.Lane('Aatf_M_WT_4', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA59'),
+    alignment.lanes.Lane('Aatf_M_KO_3', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA60'),
+    alignment.lanes.Lane('Aatf_F_WT_5', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA62'),
+    alignment.lanes.Lane('Aatf_F_KO_4', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA63'),
+    alignment.lanes.Lane('Aatf_M_KO_5', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA64'),
 ]
 print(raw_lanes[0].input_files)
 
@@ -35,8 +36,11 @@ aligned_lane = {}
 for name, lane in raw_lanes.items():
     lane.do_quality_check()
     aligned_lane[name] = lane.align(genome, aligner)
-    aligned_lane[name].convert_bam2bw()
+    #print(aligned_lane[name].lane.result_dir)
+    #print(aligned_lane[name].result_dir)
+    #aligned_lane[name].convert_bam2bw()
 
+'''
 # Deduplicate the bam files
 max_stack = 7
 dedup_lane = {}
@@ -53,7 +57,7 @@ for s, c, name, caller in [
 ]:
     #dedup_lane[s].callpeaks(caller, dedup_lane[c], name)
     dedup_lane[s].callpeaks(caller, None, name)
-
+'''
 
 
 '''

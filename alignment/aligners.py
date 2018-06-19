@@ -3,6 +3,7 @@ __author__ = 'peeyush'
 # Standard library imports
 import os
 import sys
+import copy
 import subprocess
 import multiprocessing
 # third party imports
@@ -43,11 +44,11 @@ class Bowtie2(object):
         #print(stderr)
         return version.split(' ')[2]
 
-    def align(self, alignedlane, lane, genome, uniquely_aligned_output_file, unaligned_fastq_file=None):
+    def align(self, alignedlane, genome, uniquely_aligned_output_file, unaligned_fastq_file=None):
         """Align a lane to a genome.
         :return:
         """
-        temp_outputfile = os.path.join(alignedlane.cache_dir, lane.name + '_' + genome.name + '_' + self.name + '.sam')
+        temp_outputfile = os.path.join(alignedlane.cache_dir, alignedlane.lane.name + '_' + genome.name + '_' + self.name + '.sam')
         print(temp_outputfile)
 
         def align_to_sam():
@@ -61,7 +62,7 @@ class Bowtie2(object):
                 '-x', genome_index
             ])
 
-            if hasattr(lane, 'is_paired') and not lane.is_paired:
+            if hasattr(alignedlane.lane, 'is_paired') and not alignedlane.lane.is_paired:
                 if unaligned_fastq_file:
                     if unaligned_fastq_file.endswith('.gz'):
                         parameters.extend(['--un-gz', unaligned_fastq_file])
@@ -70,10 +71,10 @@ class Bowtie2(object):
                     else:
                         parameters.extend(['--un', unaligned_fastq_file])
                 parameters.extend(['-U'])
-                seq_input_files = lane.input_files
+                seq_input_files = alignedlane.lane.input_files
                 parameters.extend([','.join(seq_input_files)])
 
-            if hasattr(lane, 'is_paired') and lane.is_paired:
+            if hasattr(alignedlane.lane, 'is_paired') and alignedlane.lane.is_paired:
                 if unaligned_fastq_file:
                     if unaligned_fastq_file.endswith('.gz'):
                         parameters.extend(['--un-conc-gz', unaligned_fastq_file])
@@ -81,7 +82,7 @@ class Bowtie2(object):
                         parameters.extend(['--un-conc-bz2', unaligned_fastq_file])
                     else:
                         parameters.extend(['--un-conc', unaligned_fastq_file])
-                one, two = lane.get_input_filename_aligner()
+                one, two = alignedlane.lane.get_input_filename_aligner()
                 parameters.extend([
                     '-1', one,
                     '-2', two
@@ -124,10 +125,90 @@ class Bowtie2(object):
         return stdout, stderr
 
 
+class TopHat2(object):
+    """
+    Wrapper for tophat2 aligner (A Splice aware aligner)
+    """
+    def __init__(self, parameter=None):
+        """
+        :param parameters: these are straight command line parameters to bowtie2 e.g. [-N 5]
+        :return:
+        """
+        self.name = 'tophat2'
+        self.threads = int(multiprocessing.cpu_count() - 1)
+        if parameter is None:
+            self.parameters = []
+        self.parameters = parameter
+
+    def get_version(self):
+        """Now: Returns the version of this aligner
+        Future: Pipeline can check the version of aligner, if changed then rerun the whole analysis.
+        """
+        stdout, stderr = self.call_tophat2(['--version'])
+        version = stdout.decode('utf-8')
+        print("===========================================")
+        print(version)
+        print("===========================================")
+        #print(stderr)
+        return version
+
+    def align(self, alignedlane, genome, uniquely_aligned_output_file, unaligned_fastq_file=None):
+        """Align a lane to a genome.
+        :return:
+        """
+        #print('Output file name:', uniquely_aligned_output_file)
+        #print('Res path:', alignedlane.result_dir)
+        genome_index = genome.get_bowtie2_index()
+        parameters = copy.deepcopy(self.parameters)
+        parameters.extend([
+            '-p', self.threads,
+            '-G', genome.get_gtf_path(),
+            '-o', alignedlane.result_dir
+            ])
+        parameters.extend([genome_index])
+
+        if hasattr(alignedlane.lane, 'is_paired') and not alignedlane.lane.is_paired:
+            seq_input_files = alignedlane.lane.input_files
+            parameters.extend([','.join(seq_input_files)])
+
+        if hasattr(alignedlane.lane, 'is_paired') and alignedlane.lane.is_paired:
+            # Remember to write
+            pass
+
+        parameters = [str(x) for x in parameters]
+        print('This is the command:', ' '.join(parameters))
+        '''
+        stdout, stderr = self.call_tophat2(parameters)  # calling bowtie2 aligner
+        print(stdout, stderr)
+        try:
+            file = open(uniquely_aligned_output_file[:-4] + '_tophat2_stats.txt', 'w')
+            for line in stderr.decode("utf-8").split('\n'):
+                print(line)
+                file.write(str(line)+'\n')
+            file.close()
+        except Exception as e:
+            raise IOError(e)
+        '''
+
+    def call_tophat2(self, parameter):
+        """Calls real toptat"""
+        print('############# Aligning seqs with tophat2 ##############')
+        stdout = subprocess.PIPE
+        stderr = subprocess.PIPE
+        cmd = [os.path.join(tools_folder, 'aligners', self.name, self.name)]
+        cmd.extend(parameter)
+        print(' '.join(cmd))
+        p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+        stdout, stderr = p.communicate()
+        return stdout, stderr
+
+
+
+
 class ConvertBam(object):
-    '''
+    """
     Convert bam files to desired format.
-    '''
+    """
     def __init__(self, alignedlane):
         self.alignedlane = alignedlane
 
