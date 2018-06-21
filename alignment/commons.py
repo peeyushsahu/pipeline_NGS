@@ -26,7 +26,7 @@ def ensure_path(path):
 
 class sam_2_bam():
     """Converting sam to bam using samtools"""
-    def __init__(self, tools_path, sam_path, bam_path):
+    def __init__(self, tools_path, bam_path, sam_path=None):
         self.name = 'samtools-1.5'
         self.samtool = os.path.join(tools_path, self.name, 'samtools')
         self.sam_path = sam_path

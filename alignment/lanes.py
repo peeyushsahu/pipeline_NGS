@@ -28,7 +28,8 @@ class Lane(object):
         self.result_dir = os.path.join(self.base_path, 'results', 'Lane', self.name)
         self.cache_dir = os.path.join(self.base_path, 'cache', 'Lane', self.name)
         self.seq_length = self.etimate_seq_length()
-        print('Results will be stored in:', self.base_path)
+        print('Sample name:', self.name)
+        #print('Results will be stored in:', self.base_path)
 
     def get_input_filename_aligner(self, filename_or_directory):
         """This will check if the given path is a filename, else iterate over all files in dir"""

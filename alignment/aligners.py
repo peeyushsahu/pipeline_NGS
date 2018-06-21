@@ -135,10 +135,11 @@ class TopHat2(object):
         :return:
         """
         self.name = 'tophat2'
-        self.threads = int(multiprocessing.cpu_count() - 1)
+        self.threads = int(multiprocessing.cpu_count() - 2)
+        self.parameters = parameter
         if parameter is None:
             self.parameters = []
-        self.parameters = parameter
+            #print('here')
 
     def get_version(self):
         """Now: Returns the version of this aligner
@@ -163,9 +164,10 @@ class TopHat2(object):
         parameters.extend([
             '-p', self.threads,
             '-G', genome.get_gtf_path(),
-            '-o', alignedlane.result_dir
+            '--transcriptome-index=' + os.path.join(genome.genome_path, 'Sequence', 'Bowtie2TransIndex', 'genes'),
+            '-o', alignedlane.result_dir,
+            genome_index
             ])
-        parameters.extend([genome_index])
 
         if hasattr(alignedlane.lane, 'is_paired') and not alignedlane.lane.is_paired:
             seq_input_files = alignedlane.lane.input_files
@@ -174,21 +176,24 @@ class TopHat2(object):
         if hasattr(alignedlane.lane, 'is_paired') and alignedlane.lane.is_paired:
             # Remember to write
             pass
-
         parameters = [str(x) for x in parameters]
-        print('This is the command:', ' '.join(parameters))
-        '''
+
+        # Aligning fastq
         stdout, stderr = self.call_tophat2(parameters)  # calling bowtie2 aligner
-        print(stdout, stderr)
-        try:
-            file = open(uniquely_aligned_output_file[:-4] + '_tophat2_stats.txt', 'w')
-            for line in stderr.decode("utf-8").split('\n'):
-                print(line)
-                file.write(str(line)+'\n')
-            file.close()
-        except Exception as e:
-            raise IOError(e)
-        '''
+        print('stdout:', stdout)
+        print('stderr:', stderr)
+        os.rename(os.path.join(alignedlane.result_dir, 'accepted_hits.bam'), uniquely_aligned_output_file)
+        file = open(uniquely_aligned_output_file[:-4] + '_run_stat.txt', 'w')
+        file.write('Parameters:'+' '.join(parameters))
+        for line in stderr.decode("utf-8").split('\n'):
+            print(line)
+            file.write(str(line)+'\n')
+        for line in stdout.decode("utf-8").split('\n'):
+            print(line)
+            file.write(str(line)+'\n')
+        file.close()
+
+        commons.sam_2_bam(tools_folder, uniquely_aligned_output_file).indexing_bam()
 
     def call_tophat2(self, parameter):
         """Calls real toptat"""
@@ -197,12 +202,13 @@ class TopHat2(object):
         stderr = subprocess.PIPE
         cmd = [os.path.join(tools_folder, 'aligners', self.name, self.name)]
         cmd.extend(parameter)
-        print(' '.join(cmd))
-        p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
-        stdout, stderr = p.communicate()
+        print('Tophat cmd:', ' '.join(cmd))
+        try:
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+            stdout, stderr = p.communicate()
+        except Exception as e:
+            raise IOError(e)
         return stdout, stderr
-
-
 
 
 class ConvertBam(object):

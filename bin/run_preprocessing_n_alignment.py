@@ -1,6 +1,7 @@
 __author__ = 'sahu'
 
 # Standard library imports
+import os
 # third party imports
 # local imports
 from genome import ensembl
@@ -11,8 +12,8 @@ import annotate.Annotate as annotate
 
 genome = ensembl.EnsemblGenome('mus_musculus', 'release-92') #'Homo_sapiens', '74'
 #aligner = alignment.aligners.Bowtie2()
-aligner = alignment.aligners.TopHat2(parameter=['--library-type', 'fr-secondstrand'])
 #peak_caller = peakCaller.MACS('hs')  # 'hs' is for human genome size for mouse use 'mm'
+aligner = alignment.aligners.TopHat2(parameter=['--library-type', 'fr-unstranded', '--no-coverage-search'])
 aligner.get_version()
 
 raw_lanes = [
@@ -27,18 +28,17 @@ raw_lanes = [
     alignment.lanes.Lane('Aatf_F_KO_4', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA63'),
     alignment.lanes.Lane('Aatf_M_KO_5', '/ps/imt/f/manaswita/bastet.ccg.uni-koeln.de/downloads/mjain/BGA64'),
 ]
-print(raw_lanes[0].input_files)
 
 raw_lanes = dict((x.name, x) for x in raw_lanes)
 
 # Aligning fastq files
 aligned_lane = {}
 for name, lane in raw_lanes.items():
-    lane.do_quality_check()
+    #print(name)
+    #print(lane.input_files)
+    #lane.do_quality_check()
     aligned_lane[name] = lane.align(genome, aligner)
-    #print(aligned_lane[name].lane.result_dir)
-    #print(aligned_lane[name].result_dir)
-    #aligned_lane[name].convert_bam2bw()
+    aligned_lane[name].convert_bam2bw()
 
 '''
 # Deduplicate the bam files

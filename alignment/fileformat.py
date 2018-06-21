@@ -6,7 +6,7 @@ import gzip
 def fastq_iterator(file_obj):
     """ A very simple generater for reading fastq files,
     tried Bio.SeqIO was really slow"""
-    print('Reading')
+    #print('Reading')
     id = file_obj.readline()
     seq = file_obj.readline()
     info = file_obj.readline()
@@ -25,7 +25,7 @@ def estimate_fastq_seq_length(file_names):
     set_seq_len = set()
     file_path = file_names[0]
     if file_path.endswith('.gz'):
-        print('Reading compressed fastQ')
+        #print('Reading compressed fastQ')
         try:
             with gzip.open(file_path, "rb") as handle:
                 fastq_generator = fastq_iterator(handle)
@@ -38,7 +38,7 @@ def estimate_fastq_seq_length(file_names):
             raise IOError('Error in reading zipped FastQ file', e)
 
     if file_path.endswith('.fastq'):
-        print('Reading fastQ')
+        #print('Reading fastQ')
         try:
             with open(file_path, "rb") as handle:
                 fastq_generator = fastq_iterator(handle)
@@ -49,5 +49,5 @@ def estimate_fastq_seq_length(file_names):
             handle.close()
         except Exception as e:
             raise IOError('Error in reading FastQ file', e)
-    print('Estimated seq length:', max(set_seq_len))
+    print('Estimated seq length from 10000seq Min:', min(set_seq_len), ' Max:', max(set_seq_len))
     return max(set_seq_len)
