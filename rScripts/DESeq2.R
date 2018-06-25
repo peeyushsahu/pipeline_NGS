@@ -4,18 +4,18 @@
 
 library('DESeq2')
 
-path = '/ps/imt/e/20141009_AG_Bauer_peeyush_re_analysis/further_analysis/results/RNAseq/NT2D1+-RA+KO/count'
-count_data = read.csv(file = paste(path,'/NT2D1_PRMT6_KO+-ATRA_for_analysis.txt', 
+path = '/ps/imt/e/2018_Manas/results/RnaSeq'
+count_data = read.csv(file = paste(path,'/count_data_DEseq.tsv', 
                                       sep = ''), header = TRUE, row.names=1, sep = '\t')
-pheno_data = read.csv(file = paste(path,'/pheno_-RA.txt',
+pheno_data = read.csv(file = paste(path,'/pheno.txt',
                                    sep = ''), header = TRUE, row.names=1, sep = '\t')
-print(colnames(count_data))
-count_data = count_data[,-c(1)]
 
 ## Remove additional samples from calculation
 print(colnames(count_data))
-count_data = count_data[,c(1,3,4,5)]
+print(head(count_data))
+count_data = count_data[,-c(1,2,3,4,5,7)]
 print(colnames(count_data))
+print(rownames(pheno_data))           
 
 count_data <- count_data[ rowSums(count_data) >= 10, ]
 count_data[count_data == 0] <- 1
@@ -24,12 +24,15 @@ count_data[count_data == 0] <- 1
 dds <- DESeqDataSetFromMatrix(countData = count_data,
                               colData = pheno_data,
                               design = ~ condition)
-## ----prefilter-----------------------------------------------------------
-#dds <- dds[ rowSums(counts(dds)) > 1, ]
-#dds <- dds[ rowSums(counts(dds)) > 9, ]
+
+## ----rlogAndVST----------------------------------------------------------
+rld <- rlog(ddsMF)
+## ----figPCA, dev="pdf", fig.width=5, fig.height=3------------------------
+plotPCA(rld, intgroup=c("condition"), ntop = 1000)
+data = plotPCA(rld, intgroup=c("condition", "gender"), ntop = 2000, returnData = TRUE)
 
 ## ----relevel-------------------------------------------------------------
-dds$condition <- relevel(dds$condition, ref="CT")
+dds$condition <- relevel(dds$condition, ref="WT")
 
 ## ----deseq---------------------------------------------------------------
 dds <- DESeq(dds)
@@ -43,7 +46,7 @@ res <- as.data.frame(res)
 normalizedcounts = t(t(counts(dds))/sizeFactors(dds))
 normalizedcounts = as.data.frame(normalizedcounts)
 write.table(normalizedcounts,
-            file=paste(outpath,"/Norm_tag_counts.txt",sep = ''), sep = '\t')
+            file=paste(path,"/DESeq2_norm_tag_counts.txt",sep = ''), sep = '\t')
 
 
 colname = colnames(normalizedcounts)
@@ -65,27 +68,35 @@ summary(res)
 sum(res$padj < 0.1, na.rm=TRUE)
 
 ## ----export, eval=FALSE--------------------------------------------------
-outpath = '/ps/imt/e/20141009_AG_Bauer_peeyush_re_analysis/further_analysis/results/RNAseq/NT2D1_KO_-ATRA/DESeq2'
+#outpath = '/ps/imt/e/20141009_AG_Bauer_peeyush_re_analysis/further_analysis/results/RNAseq/NT2D1_KO_-ATRA/DESeq2'
 write.table(res,
-           file=paste(outpath,"/Deseq2_PRMT6_KO_-RA_removed_CT2_KO3_full.tsv",sep = ''), sep = '\t')
+           file=paste(path,"/Deseq2_result.tsv",sep = ''), sep = '\t')
 
 ## Including factors
 
 ddsMF<-dds
 
 ## ----replaceDesign-------------------------------------------------------
-design(ddsMF) <- formula(~ day + condition)
+design(ddsMF) <- formula(~ gender + condition)
 ddsMF <- DESeq(ddsMF)
 
 ## ----multiResults--------------------------------------------------------
 resMF <- results(ddsMF)
 head(resMF)
- 
+## ----MA, fig.width=4.5, fig.height=4.5-----------------------------------
+plotMA(resMF, main="MA Plot", ylim=c(-4,4))#, col = ifelse(res$log2FoldChange>=2 | res$log2FoldChange<=-2, "red3", "gray32"))
+
+resMF <- as.data.frame(resMF)
+
+write.table(resMF,
+            file=paste(path,"/Deseq2_result_factor4Gender.tsv",sep = ''), sep = '\t')
+
+
 ## ----rlogAndVST----------------------------------------------------------
-rld <- rlog(dds)
+rld <- rlog(ddsMF)
 ## ----figPCA, dev="pdf", fig.width=5, fig.height=3------------------------
-plotPCA(rld, intgroup=c("condition", "sample"), ntop = 1000)
-data = plotPCA(rld, intgroup=c("condition", "sample"), ntop = 2000, returnData = TRUE)
+plotPCA(rld, intgroup=c("condition"), ntop = 500)
+data = plotPCA(rld, intgroup=c("condition", "gender"), ntop = 2000, returnData = TRUE)
 percentVar = round(100*attr(pcData, "percentVar"))
 
 
@@ -139,17 +150,17 @@ write.table(as.data.frame(res),
 ####### HeatMap ##############
 res1 = res
 res = res1
-res = res[res$log2FoldChange >= 1.5 | res$log2FoldChange <= -1.5,]
-res = res[res$padj <= 0.05,]
+res = res[which(res$log2FoldChange >= 0.5 | res$log2FoldChange <= -0.5),]
+res = res[which(res$padj <= 0.01),]
 
 colnames(res)
 res = res[order(res$log2FoldChange, decreasing = TRUE),]
-res = res[order(res$HL60_2_10_1, decreasing = TRUE),]
-df = res[, -c(1,2,3,4,5,6,7,8)]
+res = res[order(res$Aatf_M_WT_1, decreasing = TRUE),]
+df = res[, -c(1,2,3,4,5,6)]
 df = log(df,2)
 max(df)
 mat = as.matrix(df)
-my_palette <- colorRampPalette(c("white","wheat","ightcoral"))(n = 299)
+my_palette <- colorRampPalette(c("blue","white","red"))(n = 299)
 # (optional) defines the color breaks manually for a "skewed" color transition
 
 col_breaks = c(seq(0,5,length=100),
@@ -157,7 +168,7 @@ col_breaks = c(seq(0,5,length=100),
                seq(10,15,length=100))
 
 ########## creating images ############
-map_path = paste(outpath,'/heatmap.png', sep = "")
+map_path = paste(path,'/heatmap.png', sep = "")
 print(map_path)
 png(map_path, 
     width = 12*300,        # 5 x 300 pixels
@@ -168,27 +179,23 @@ png(map_path,
 #print(path)
 ################################
 
-heatmap.2(mat, 
-          #cellnote = mat,  # same data set for cell labels
-          main = "DEGenes log2(count)", # heat map title
-          #xlab = "Differential tag densities",
-          #ylab = "Peaks",
+#### heatmap3 #################
+heatmap.3(mat,
+          main = "Tag_density_HeatMap", # heat map title
+          xlab = "Distribution of peaks over 3000bp+-",
+          ylab = "Peaks",
+          col=my_palette,
+          breaks=col_breaks,
+          dendrogram="none",
+          Colv= TRUE,           #cluster column
+          Rowv = NA,
           labRow = "",
-          labCol = colnames(df),
-          #cexRow = 0.7,           # Changes the size of col and row font size
-          cexCol = 1,
-          notecol="black",      # change font color of cell labels to black
-          density.info="none",  # turns off density plot inside color legend
-          trace="none",         # turns off trace lines inside the heat map
-          margins =c(6,3),     # widens margins around plot
-          col=my_palette,       # use on color palette defined earlier
-          breaks=col_breaks,    # enable color transition at specified limits
-          dendrogram="none",     # only draw a row dendrogram
-          #Colv= TRUE,           #cluster column
-          #Rowv = TRUE,
-          keysize = 0.5,
-          na.color = 'black'
+          labCol = "",
+          #RowSideColors = as.matrix(t(rowsidecolor)),
+          keysize = 0.5
 )
 dev.off()
+
+
 
          

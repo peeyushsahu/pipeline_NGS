@@ -10,8 +10,10 @@ import logging
 # third party imports
 import pysam
 # local imports
+import alignment.commons as commons
 
 tools_folder = '/ps/imt/tools'
+
 
 class EnsemblGenome:
     '''This class encapsulates Ensembl genome for downstream analysis i.e. aligniment, peakcalling etc.
@@ -74,6 +76,13 @@ class EnsemblGenome:
             sys.exit('Provide version for BWA e.g. version0.6.0')
         return os.path.join(self.genome_path, 'Sequence', version, 'BWAIndex')
 
+    def get_star_index(self):
+        """
+        Return path to STAR aligner index
+        :return:
+        """
+        return os.path.join(self.genome_path, 'Sequence', 'STARIndex')
+
     def get_gtf_path(self):
         """Get gtf file path for passing to aligners.
         :return:
@@ -117,8 +126,6 @@ class DownloadEnsemblGenome:
     """
     Download genome from ENSEMBL using rsync
     """
-    import os
-    import subprocess
     def __init__(self, organism, release, ensemblbasepath=None, outpath='/ps/imt/f/reference_genomes', consortium='ensembl'):
         self.release = release
         self.ensemblbasepath = ensemblbasepath
@@ -267,10 +274,15 @@ class BuildGenome(object):
     """
     def __init__(self, DownloadEnsemblGenome):
         self.DownloadGenome = DownloadEnsemblGenome
+        self.whole_genome = None
+        self.gtf = None
 
     def run(self):
         self.unzip_allzipped_in_root()
-        self.index_genome()
+        self.renaming_genome_files()
+        self.index_genomefq()
+        self.index_genome_bowtie2()
+        self.index_genome_star()
 
     def unzip_allzipped_in_root(self):
         """We will walk in the root folder and save path for all zipped files.
@@ -303,21 +315,40 @@ class BuildGenome(object):
         file.close()
         file1.close()
 
-    def index_genome(self):
-        """Index the downloaded genome
+    def renaming_genome_files(self):
+        """
+        Chnage file names to match genome class
+        :return:
+        """
+        ## Whole genome fasta ##
+        whlGnmfq = [x for x in os.listdir(os.path.join(self.DownloadGenome.release_path, 'Sequence', 'WholeGenomeFasta')) if x.endswith('.fa')][0]
+        whlGnmfq_n = os.path.join(self.DownloadGenome.release_path, 'Sequence', 'WholeGenomeFasta', 'genome.fa')
+        os.rename(whlGnmfq, whlGnmfq_n)
+        self.whole_genome = whlGnmfq_n
+
+        ## GTF and GFF files ##
+        gtf = [x for x in os.listdir(os.path.join(self.DownloadGenome.release_path, 'Annotation', 'gtf')) if x.endswith('.gtf')][0]
+        gtf_n = os.path.join(self.DownloadGenome.release_path, 'Annotation', 'gtf', 'genes.gtf')
+        os.rename(gtf, gtf_n)
+        self.gtf = gtf_n
+        gff = [x for x in os.listdir(os.path.join(self.DownloadGenome.release_path, 'Annotation', 'gff3')) if x.endswith('.gff3')][0]
+        gff_n = os.path.join(self.DownloadGenome.release_path, 'Annotation', 'gff3', 'genes.gff3')
+        os.rename(gff, gff_n)
+
+    def index_genome_bowtie2(self):
+        """
+        Index the downloaded genome
         can be further build to accommodate other aligners
         """
         import pysam
         # Build bowtie2 index
         print('Building index....')
-        whole_genome_fasta = os.path.join(self.DownloadGenome.release_path, 'Sequence', 'WholeGenomeFasta', 'genome.fa')
-
+        whole_genome_fasta = self.whole_genome
         file = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stdout'), 'a')
         file1 = open(os.path.join(self.DownloadGenome.release_path, self.DownloadGenome.release+'.stderr'), 'a')
 
         # Build bowtie2 index
         bowtie2build = os.path.join(tools_folder, 'aligners', 'bowtie2', 'bowtie2-build')
-        #threads = int(multiprocessing.cpu_count() - 1)
         outpath = os.path.join(self.DownloadGenome.release_path, 'Sequence', 'Bowtie2Index', 'genome')
         cmd = [bowtie2build, '-f', whole_genome_fasta, outpath]
         #print(' '.join(cmd))
@@ -331,11 +362,46 @@ class BuildGenome(object):
             file1.write(''.join(cmd))
             file1.write(e)
             print('Problem in building genome index check stderr file\n')
-        # index whole genome fasta with samtools
+        file.close()
+        file1.close()
+
+    def index_genomefq(self):
+        """
+        Index whole genome fasta with samtools
+        :return:
+        """
         try:
-            pysam.faidx(whole_genome_fasta)
+            pysam.faidx(self.whole_genome)
         except Exception as e:
             print('Problem in pysam faidx')
             print(e)
-        file.close()
-        file1.close()
+
+    def index_genome_star(self, ram_atdisposal=30, genome_dir=None):
+        """
+        Index downloaded genome for STAR aligner
+        :return:
+        """
+        cmd = []
+        star = os.path.join(tools_folder, 'aligners', 'STAR', 'bin/Linux_x86_64/STAR')
+        cmd.extend([star])
+        cmd.extend(['--runMode', 'genomeGenerate',
+                    '--runThreadN', multiprocessing.cpu_count()-2])
+        cmd.extend(['----genomeFastaFiles', self.whole_genome])
+        cmd.extend(['--sjdbGTFfile', self.gtf])
+
+        # If you do not have enough memory
+        if ram_atdisposal < 60:
+            cmd.extend(['--limitGenomeGenerateRAM', '24000000000',
+                        '--genomeSAsparseD', '2'])
+
+        # Outpath to STAR index
+        if genome_dir is None:
+            genome_dir = commons.ensure_path(os.path.join(self.DownloadGenome.release_path, 'Sequence', 'STARIndex'))
+            cmd.extend(['--genomeDir', genome_dir])
+        else:
+            cmd.extend(['--genomeDir', genome_dir])
+
+
+
+
+

@@ -6,14 +6,19 @@ import os
 # local imports
 from genome import ensembl
 import alignment
+import rna_seq.bam_processing as bam_processing
 import peakcaller.peakCaller as peakCaller
 import annotate.Annotate as annotate
 
-
+# Select genome of your choice (if you do not have it use Download and build gnome function)
 genome = ensembl.EnsemblGenome('mus_musculus', 'release-92') #'Homo_sapiens', '74'
+
+# Select aligner of your choice
 #aligner = alignment.aligners.Bowtie2()
+#aligner = alignment.aligners.TopHat2(parameter=['--library-type', 'fr-unstranded'])
+aligner = alignment.aligners.STAR()
+
 #peak_caller = peakCaller.MACS('hs')  # 'hs' is for human genome size for mouse use 'mm'
-aligner = alignment.aligners.TopHat2(parameter=['--library-type', 'fr-unstranded', '--no-coverage-search'])
 aligner.get_version()
 
 raw_lanes = [
@@ -38,19 +43,28 @@ for name, lane in raw_lanes.items():
     #print(lane.input_files)
     #lane.do_quality_check()
     aligned_lane[name] = lane.align(genome, aligner)
-    aligned_lane[name].convert_bam2bw()
+    #aligned_lane[name].convert_bam2tdf()
 
+# Extract count data for RNAseq DE gene analysis
 '''
+bam_proc = bam_processing.RNAseqProcessing(genome, aligned_lane)
+bam_proc.get_bam_paths()
+bam_proc.get_feature_counts()
+'''
+
+
 # Deduplicate the bam files
+'''
 max_stack = 7
 dedup_lane = {}
 for name, ali_lane in aligned_lane.items():
     dedup_lane[name] = alignment.lanes.AlignedLaneDedup(ali_lane)
     dedup_lane[name].do_dedup(maximum_stacks=max_stack)
     dedup_lane[name].convert_bam2bw()
-
+'''
 
 # Calling peaks on selected samples
+'''
 for s, c, name, caller in [
     #('MLL4_abg_E9', 'MLL4_abg_B6', 'MLL4_abg_E9 vs MLL4_abg_B6', peak_caller),
     ('H3R2me2a_B6_FlagP6_Doxy', None, 'H3R2me2a_B6_FlagP6_Doxy', peak_caller),
@@ -59,14 +73,3 @@ for s, c, name, caller in [
     dedup_lane[s].callpeaks(caller, None, name)
 '''
 
-
-'''
-# generating count for features from bam files
-
-bamPrcessing.count_Data_featureCounts(bamPaths, genome.gtfFile, count_out='/ps/imt/e/20141009_AG_Bauer_peeyush_re_analysis/further_analysis/results/RNAseq/NT2D1_KO_+ATRA/count/NT2D1_3d_+ATRA_tophat2_KO.txt')
-
-#  RNASeq diffcalling CuffDiff
-controlSamples = ['NT2D1_E9_1_RA', 'NT2D1_E9_2_RA', 'NT2D1_E9_3_RA']
-conditionSamples = ['NT2D1_B6_1_RA', 'NT2D1_B6_2_RA','NT2D1_B6_3_RA']
-#bamPrcessing.cuffDiff(alignedLane, controlSamples, conditionSamples, genome, ['PRMT6_KO_EGFP9_RA', 'PRMT6_KO_B6_RA'])
-'''

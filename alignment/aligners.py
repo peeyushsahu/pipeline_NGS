@@ -1,17 +1,14 @@
-__author__ = 'peeyush'
-
 # Standard library imports
 import os
-import sys
 import copy
 import subprocess
 import multiprocessing
 # third party imports
-import pysam
+
 # local imports
 import alignment.commons as commons
-import genome.ensembl as ensembl
 
+__author__ = 'peeyush'
 
 tools_folder = '/ps/imt/tools'
 
@@ -153,15 +150,15 @@ class TopHat2(object):
         #print(stderr)
         return version
 
-    def align(self, alignedlane, genome, uniquely_aligned_output_file, unaligned_fastq_file=None):
+    def align(self, alignedlane, genome, uniquely_aligned_output_file):
         """Align a lane to a genome.
         :return:
         """
-        #print('Output file name:', uniquely_aligned_output_file)
-        #print('Res path:', alignedlane.result_dir)
+        print('Res path:', alignedlane.result_dir)
         genome_index = genome.get_bowtie2_index()
         parameters = copy.deepcopy(self.parameters)
         parameters.extend([
+            '--no-coverage-search',
             '-p', self.threads,
             '-G', genome.get_gtf_path(),
             '--transcriptome-index=' + os.path.join(genome.genome_path, 'Sequence', 'Bowtie2TransIndex', 'genes'),
@@ -175,7 +172,8 @@ class TopHat2(object):
 
         if hasattr(alignedlane.lane, 'is_paired') and alignedlane.lane.is_paired:
             # Remember to write
-            pass
+            raise BrokenPipeError('This code hasnt been written yet. Ask me.')
+
         parameters = [str(x) for x in parameters]
 
         # Aligning fastq
@@ -197,12 +195,87 @@ class TopHat2(object):
 
     def call_tophat2(self, parameter):
         """Calls real toptat"""
-        print('############# Aligning seqs with tophat2 ##############')
+        print('#### Aligning seqs with tophat2')
         stdout = subprocess.PIPE
         stderr = subprocess.PIPE
         cmd = [os.path.join(tools_folder, 'aligners', self.name, self.name)]
         cmd.extend(parameter)
         print('Tophat cmd:', ' '.join(cmd))
+        try:
+            p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
+            stdout, stderr = p.communicate()
+        except Exception as e:
+            raise IOError(e)
+        return stdout, stderr
+
+
+class STAR:
+    """
+    Aligning sequences with STAR
+    """
+    def __init__(self, parameter=None, outsamtype='bam', test_align=False):
+        self.name = 'STAR'
+        self.parameters = parameter
+        if parameter is None:
+            self.parameters = []
+        self.outsamtype = outsamtype
+        self.test_align = test_align  # If you want to test alignment for few reads
+
+    def get_version(self):
+        """
+        Print version of STAR
+        """
+        print("===========================================")
+        print('STAR version:', self.call_star(['--version'])[0].decode('utf-8'))
+        print("===========================================")
+
+    def align(self, alignedlane, genome, uniquely_aligned_output_file, report_unaligned=True):
+        parameters = copy.deepcopy(self.parameters)
+
+        parameters.extend(['--runMode', 'alignReads'])
+        parameters.extend(['--runThreadN', int(multiprocessing.cpu_count() - 2)])
+        parameters.extend(['--genomeDir', genome.get_star_index()])
+
+        if hasattr(alignedlane.lane, 'is_paired') and not alignedlane.lane.is_paired:
+            seq_input_files = alignedlane.lane.input_files
+            parameters.extend(['--readFilesIn', ','.join(seq_input_files)])
+
+        if hasattr(alignedlane.lane, 'is_paired') and alignedlane.lane.is_paired:
+            # Remember to write for paired end read
+            raise BrokenPipeError('This code hasnt been written yet. Ask me.')
+
+        # Deciding compression type of fq files
+        if seq_input_files[0].endswith('.gz'):
+            parameters.extend(['--readFilesCommand', 'zcat'])  # gzip -c is not working
+
+        if seq_input_files[0].endswith('.bz2'):
+            parameters.extend(['--readFilesCommand', 'bzip2 -c'])
+
+        parameters.extend(['--outFileNamePrefix', uniquely_aligned_output_file[:-4]])  # Output file name
+
+        if report_unaligned:
+            parameters.extend(['--outReadsUnmapped', 'Fastx'])
+
+        if self.outsamtype == 'bam':  # Else default is SAM
+            parameters.extend(['--outSAMtype', 'BAM', 'SortedByCoordinate'])
+
+        if self.test_align:
+            print('Test alignment is on, only first 100K reads are aligned')
+            parameters.extend(['--readMapNumber', 100000])
+
+        parameters = [str(x) for x in parameters]
+        self.call_star(parameters)  # Calling Aligner
+        bam_name = [x for x in os.listdir(alignedlane.result_dir) if x.endswith('.bam')][0]
+        os.rename(os.path.join(alignedlane.result_dir, bam_name), uniquely_aligned_output_file)  # Renameing sorted bam files
+        commons.sam_2_bam(tools_folder, uniquely_aligned_output_file).indexing_bam()  # Indexing bam
+
+    def call_star(self, parameter):
+        print('#### Aligning seqs with STAR')
+        stdout = subprocess.PIPE
+        stderr = subprocess.PIPE
+        cmd = [os.path.join(tools_folder, 'aligners', 'STAR', 'bin', 'Linux_x86_64', self.name)]
+        cmd.extend(parameter)
+        print('STAR cmd:', ' '.join(cmd))
         try:
             p = subprocess.Popen(cmd, stdout=stdout, stderr=stderr)
             stdout, stderr = p.communicate()
@@ -220,7 +293,7 @@ class ConvertBam(object):
 
     def bam_2_tdf(self):
         """Now one more conversion bam --> tdf for igv (these tracks are light)"""
-        stdout, stderr = commons.bam_2_tdf(tools_folder, self.alignedlane.unique_output_filename, window_size=50)
+        stdout, stderr = commons.bam_2_tdf(tools_folder, self.alignedlane.unique_output_filename, window_size=10)
         try:
             file = open(os.path.join(self.alignedlane.cache_dir, self.alignedlane.lane.name + '.stderr'), 'wt')
             for line in stderr.decode(encoding='utf-8').split('\n'):
@@ -236,7 +309,7 @@ class ConvertBam(object):
 
     def bam_2_bw(self):
         """Now one more conversion bam --> biwwig for any genome browser (these tracks are light)"""
-        stdout, stderr = commons.bam_2_bw(tools_folder, self.alignedlane.unique_output_filename, window_size=50)
+        stdout, stderr = commons.bam_2_bw(tools_folder, self.alignedlane.unique_output_filename, window_size=25)
         try:
             file = open(os.path.join(self.alignedlane.cache_dir, self.alignedlane.name + '.stderr'), 'wt')
             for line in stderr.decode(encoding='utf-8').split('\n'):
