@@ -39,21 +39,19 @@ raw_lanes = dict((x.name, x) for x in raw_lanes)
 # Aligning fastq files
 aligned_lane = {}
 for name, lane in raw_lanes.items():
-    #print(name)
-    #print(lane.input_files)
-    #lane.do_quality_check()
+    lane.do_quality_check()
     aligned_lane[name] = lane.align(genome, aligner)
-    #aligned_lane[name].convert_bam2tdf()
+    aligned_lane[name].convert_bam2tdf()
 
-# Extract count data for RNAseq DE gene analysis
+# Extract count data for RNAseq DE gene analysis (RNAseq)
 '''
 bam_proc = bam_processing.RNAseqProcessing(genome, aligned_lane)
 bam_proc.get_bam_paths()
-bam_proc.get_feature_counts()
+bam_proc.get_feature_counts(name='STAR_countData')
 '''
 
 
-# Deduplicate the bam files
+# Deduplicate the bam files (ChIPseq)
 '''
 max_stack = 7
 dedup_lane = {}
@@ -63,7 +61,7 @@ for name, ali_lane in aligned_lane.items():
     dedup_lane[name].convert_bam2bw()
 '''
 
-# Calling peaks on selected samples
+# Calling peaks on selected samples (ChIPseq)
 '''
 for s, c, name, caller in [
     #('MLL4_abg_E9', 'MLL4_abg_B6', 'MLL4_abg_E9 vs MLL4_abg_B6', peak_caller),

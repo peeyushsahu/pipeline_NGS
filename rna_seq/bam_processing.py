@@ -53,7 +53,7 @@ class RNAseqProcessing:
 
         if name is None:
             parameter.extend(['-o', os.path.join(self.outpath, 'count_data.tsv')])
-        else: parameter.extend(['-o', os.path.join(self.outpath, name)])
+        else: parameter.extend(['-o', os.path.join(self.outpath, name+'.tsv')])
 
         parameter.extend(['-a', self.genome.get_gtf_path()])
         parameter.extend([bam_files])
